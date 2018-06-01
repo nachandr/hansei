@@ -139,6 +139,8 @@ class Client(object):
                 https: false  # change to true if server is published over
                               # https. Defaults to false if not defined
         """
+        # Stores the response of the last request made.
+        self._last_response = None
         self.url = url
         self.token = None
         cfg = config.get_config().get('koku', {})
@@ -258,4 +260,9 @@ class Client(object):
         headers.update(kwargs.get('headers', {}))
         kwargs['headers'] = headers
         kwargs.setdefault('verify', self.verify)
-        return self.response_handler(requests.request(method, url, **kwargs))
+        self._last_response = requests.request(method, url, **kwargs)
+        return self.response_handler(self._last_response)
+
+    @property
+    def last_response(self):
+        return self._last_response
