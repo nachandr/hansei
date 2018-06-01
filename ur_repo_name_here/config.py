@@ -37,6 +37,7 @@ def get_config():
     return deepcopy(_CONFIG)
 
 
+#TODO: Move config default location to repo root
 def _get_config_file_path(xdg_config_dir, xdg_config_file):
     """Search ``XDG_CONFIG_DIRS`` for a config file and return the first found.
 

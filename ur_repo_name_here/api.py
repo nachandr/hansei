@@ -1,7 +1,7 @@
 # coding=utf-8
-"""Client for working with QPC's API.
+"""Client for working with KOKU's API.
 
-This module provides a flexible API client for talking with the quipucords
+This module provides a flexible API client for talking with the koku
 server, allowing the user to customize how return codes are handled depending
 on the context.
 
@@ -16,8 +16,8 @@ from requests.exceptions import HTTPError
 from camayoc import config
 from camayoc import exceptions
 from camayoc.constants import (
-    QPC_API_VERSION,
-    QPC_TOKEN_PATH,
+    KOKU_API_VERSION,
+    KOKU_TOKEN_PATH,
 )
 
 
@@ -88,7 +88,7 @@ def json_handler(response):
 
 
 class Client(object):
-    """A client for interacting with the quipucords API.
+    """A client for interacting with the koku API.
 
     This class is a wrapper around the ``requests.api`` module provided by
     `Requests`_. Each of the functions from that module are exposed as methods
@@ -106,7 +106,7 @@ class Client(object):
     Example::
         >>> from camayoc import api
         >>> client = api.Client()
-        >>> # I can now make requests to the QPC server
+        >>> # I can now make requests to the KOKU server
         >>> # using relative paths, because the base url is
         >>> # was set using my config file.
         >>>
@@ -148,7 +148,7 @@ class Client(object):
             hostname = cfg.get('hostname')
 
             if not hostname:
-                raise exceptions.QPCBaseUrlNotFound(
+                raise exceptions.KOKUBaseUrlNotFound(
                     "\n'qpc' section specified in camayoc config file, but"
                     "no 'hostname' key found."
                 )
@@ -157,10 +157,10 @@ class Client(object):
             port = str(cfg.get('port', ''))
             netloc = hostname + ':{}'.format(port) if port else hostname
             self.url = urlunparse(
-                (scheme, netloc, QPC_API_VERSION, '', '', ''))
+                (scheme, netloc, KOKU_API_VERSION, '', '', ''))
 
         if not self.url:
-            raise exceptions.QPCBaseUrlNotFound(
+            raise exceptions.KOKUBaseUrlNotFound(
                 'No base url was specified to the client either with the '
                 'url="host" option or with the camayoc config file.')
 
@@ -179,7 +179,7 @@ class Client(object):
         server_password = cfg.get('password', 'pass')
         login_request = self.request(
             'POST',
-            urljoin(self.url, QPC_TOKEN_PATH),
+            urljoin(self.url, KOKU_TOKEN_PATH),
             json={
                 'username': server_username,
                 'password': server_password

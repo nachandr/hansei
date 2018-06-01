@@ -12,6 +12,7 @@ from camayoc import exceptions
 from camayoc.config import get_config
 
 
+# TODO: Koku doesn't really need to store data in XDG default dirs...i think
 _XDG_ENV_VARS = ('XDG_DATA_HOME', 'XDG_CONFIG_HOME', 'XDG_CACHE_HOME')
 """Environment variables related to the XDG Base Directory specification."""
 
@@ -29,14 +30,14 @@ def run_scans():
     return result
 
 
-def get_qpc_url():
-    """Return the base url for the qpc server."""
-    cfg = get_config().get('qpc', {})
+def get_koku_url():
+    """Return the base url for the koku server."""
+    cfg = get_config().get('koku', {})
     hostname = cfg.get('hostname')
 
     if not hostname:
-        raise exceptions.QPCBaseUrlNotFound(
-            'Make sure you have a "qpc" section and `hostname`is specified in '
+        raise exceptions.KokuBaseUrlNotFound(
+            'Make sure you have a "koku" section and `hostname`is specified in '
             'the camayoc config file'
         )
 

@@ -308,43 +308,43 @@ VAULT_PASSWORD = utils.uuid4()
 VAULT_PASSWORD_INPUT = 'Please enter your rho vault password:'
 """Vault password input prompt."""
 
-QPC_API_VERSION = 'api/v1/'
-"""The root path to access the QPC server API."""
+KOKU_API_VERSION = 'api/v1/'
+"""The root path to access the KOKU server API."""
 
-QPC_CREDENTIALS_PATH = 'credentials/'
+KOKU_CREDENTIALS_PATH = 'credentials/'
 """The path to the credentials endpoint for CRUD tasks."""
 
-QPC_SOURCE_PATH = 'sources/'
+KOKU_SOURCE_PATH = 'sources/'
 """The path to the profiles endpoint for CRUD tasks."""
 
-QPC_SCAN_PATH = 'scans/'
+KOKU_SCAN_PATH = 'scans/'
 """The path to the scans endpoint for CRUD tasks."""
 
-QPC_SCANJOB_PATH = 'jobs/'
+KOKU_SCANJOB_PATH = 'jobs/'
 """The path to the scanjob endpoint for CRUD tasks."""
 
-QPC_REPORTS_PATH = 'reports/'
+KOKU_REPORTS_PATH = 'reports/'
 """The path to the endpoint used for obtaining reports."""
 
-QPC_SCAN_TERMINAL_STATES = ('completed', 'failed', 'paused', 'canceled')
+KOKU_SCAN_TERMINAL_STATES = ('completed', 'failed', 'paused', 'canceled')
 """Scans to not change from these states without intervention."""
 
-QPC_SCAN_STATES = QPC_SCAN_TERMINAL_STATES + ('running',)
-"""All the states that a quipucords scan can take."""
+KOKU_SCAN_STATES = KOKU_SCAN_TERMINAL_STATES + ('running',)
+"""All the states that a koku scan can take."""
 
-QPC_TOKEN_PATH = 'token/'
+KOKU_TOKEN_PATH = 'token/'
 """The path to the endpoint used for obtaining an authentication token."""
 
-QPC_SOURCE_TYPES = ('vcenter', 'network', 'satellite')
-"""Types of sources that the quipucords server supports."""
+KOKU_SOURCE_TYPES = ('vcenter', 'network', 'satellite')
+"""Types of sources that the koku server supports."""
 
-QPC_SCAN_TYPES = ('inspect', 'connect')
-"""Types of scans that the quipucords server supports."""
+KOKU_SCAN_TYPES = ('inspect', 'connect')
+"""Types of scans that the koku server supports."""
 
-QPC_HOST_MANAGER_TYPES = ('vcenter', 'satellite')
-"""Types of host managers that the quipucords server supports."""
+KOKU_HOST_MANAGER_TYPES = ('vcenter', 'satellite')
+"""Types of host managers that the koku server supports."""
 
-QPC_BECOME_METHODS = (
+KOKU_BECOME_METHODS = (
     'doas',
     'dzdo',
     'ksu',
@@ -354,16 +354,16 @@ QPC_BECOME_METHODS = (
     'su',
     'sudo',
 )
-"""Supported become methods for quipucords server."""
+"""Supported become methods for koku server."""
 
-QPC_OPTIONAL_PRODUCTS = (
+KOKU_OPTIONAL_PRODUCTS = (
     'jboss_brms',
     'jboss_eap',
     'jboss_fuse',
 )
 """Optional products that can be enabled or disabled for a scan."""
 
-QPC_FUSE_RAW_FACTS = ('karaf_locate_karaf_jar', 'karaf_homes',
+KOKU_FUSE_RAW_FACTS = ('karaf_locate_karaf_jar', 'karaf_homes',
                       'karaf_home_bin_fuse', 'karaf_home_system_org_jboss',
                       'fuse_activemq_version', 'karaf_running_processes',
                       'jboss_fuse_systemctl_unit_files',
@@ -371,7 +371,7 @@ QPC_FUSE_RAW_FACTS = ('karaf_locate_karaf_jar', 'karaf_homes',
                       'fuse_cxf_version')
 """List of facts collected by JBoss FUSE role."""
 
-QPC_BRMS_RAW_FACTS = ('internal_jboss_brms_business_central_candidates',
+KOKU_BRMS_RAW_FACTS = ('internal_jboss_brms_business_central_candidates',
                       'jboss_brms_business_central_candidates',
                       'jboss_brms_kie_server_candidates',
                       'business_central_candidates_eap',
@@ -383,7 +383,7 @@ QPC_BRMS_RAW_FACTS = ('internal_jboss_brms_business_central_candidates',
                       'business_central_candidates')
 """List of facts collected by JBoss BRMS role."""
 
-QPC_EAP_RAW_FACTS = ('jboss_eap_running_paths',
+KOKU_EAP_RAW_FACTS = ('jboss_eap_running_paths',
                      'jboss_eap_locate_jbos_modules_jar',
                      'eap_home_candidates', 'eap_home_ls',
                      'eap_home_version_txt', 'eap_home_readme_txt',
@@ -394,18 +394,18 @@ QPC_EAP_RAW_FACTS = ('jboss_eap_running_paths',
                      'jboss_eap_processes', 'jboss_eap_packages')
 """List of facts collected by JBoss EAP role."""
 
-QPC_FUSE_EXTENDED_FACTS = ('jboss_activemq_ver',
+KOKU_FUSE_EXTENDED_FACTS = ('jboss_activemq_ver',
                            'jboss_camel_ver',
                            'jboss_cxf_ver',
                            'karaf_find_karaf_jar')
 """List of facts collected by JBoss FUSE Extended tasks."""
 
-QPC_BRMS_EXTENDED_FACTS = ('jboss_brms_kie_api_ver',
+KOKU_BRMS_EXTENDED_FACTS = ('jboss_brms_kie_api_ver',
                            'jboss_brms_drools_core_ver',
                            'jboss_brms_kie_war_ver')
 """List of facts collected by JBoss BRMS Extended tasks."""
 
-QPC_EAP_EXTENDED_FACTS = ('jboss_eap_find_jboss_modules_jar',
+KOKU_EAP_EXTENDED_FACTS = ('jboss_eap_find_jboss_modules_jar',
                           'jboss_eap_jar_ver',
                           'jboss_eap_run_jar_ver')
 """List of facts collected by JBoss EAP Extended tasks."""

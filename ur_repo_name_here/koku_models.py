@@ -1,5 +1,5 @@
 # coding: utf-8
-"""Models for use with the Quipucords API."""
+"""Models for use with the Koku API."""
 
 import re
 from pprint import pformat
@@ -8,26 +8,26 @@ from urllib.parse import urljoin
 from camayoc import api
 from camayoc.constants import (
     MASKED_PASSWORD_OUTPUT,
-    QPC_CREDENTIALS_PATH,
-    QPC_HOST_MANAGER_TYPES,
-    QPC_REPORTS_PATH,
-    QPC_SCANJOB_PATH,
-    QPC_SCAN_PATH,
-    QPC_SOURCE_PATH,
+    KOKU_CREDENTIALS_PATH,
+    KOKU_HOST_MANAGER_TYPES,
+    KOKU_REPORTS_PATH,
+    KOKU_SCANJOB_PATH,
+    KOKU_SCAN_PATH,
+    KOKU_SOURCE_PATH,
 )
 from camayoc.utils import uuid4
 
 OPTIONAL_PROD_KEY = 'disabled_optional_products'
 
 
-class QPCObject(object):
-    """A base class for other QPC models."""
+class KOKUObject(object):
+    """A base class for other KOKU models."""
 
     def __init__(
             self,
             client=None,
             _id=None):
-        """Provide shared methods for QPC model objects."""
+        """Provide shared methods for KOKU model objects."""
         # we want to allow for an empty string name
         self._id = _id
         self.client = client if client else api.Client()
@@ -158,8 +158,8 @@ class QPCObject(object):
         return self.client.delete(self.path(), **kwargs)
 
 
-class Credential(QPCObject):
-    """A class to aid in CRUD tests of Host Credentials on the QPC server.
+class Credential(KOKUObject):
+    """A class to aid in CRUD tests of Host Credentials on the KOKU server.
 
     Host credentials can be created by instantiating a Credential
     object. A unique name and username are provided by default.
@@ -169,7 +169,7 @@ class Credential(QPCObject):
     Example::
         >>> from camayoc import api
         >>> from camayoc.qpc_models import Credential
-        >>> client = api.QPCClient()
+        >>> client = api.KOKUClient()
         >>> cred = Credential(cred_type='network', password='foo')
         >>> # The create method automatically sets the credential's `_id`
         >>> cred.create()
@@ -194,12 +194,12 @@ class Credential(QPCObject):
         If no arguments are passed, then a api.Client will be initialized and a
         uuid4 generated for the name and username.
 
-        For a Credential to be successfully created on the QPC server,
+        For a Credential to be successfully created on the KOKU server,
         a password XOR a ssh_keyfile must be provided.
         """
         super().__init__(client=client, _id=_id)
         self.name = uuid4() if name is None else name
-        self.endpoint = QPC_CREDENTIALS_PATH
+        self.endpoint = KOKU_CREDENTIALS_PATH
         self.username = uuid4() if username is None else username
         self.password = password
         self.ssh_keyfile = ssh_keyfile
@@ -215,7 +215,7 @@ class Credential(QPCObject):
         """Return true if both objects are equal.
 
         :param other: This can be either another Credential or a dictionary
-            or json object returned from the QPC server (or crafted by hand.)
+            or json object returned from the KOKU server (or crafted by hand.)
             If `other` is a Credential instance, the two object's fields()
             will be compared. Otherwise, we expect the password to have been
             masked by the server.
@@ -254,10 +254,10 @@ class Credential(QPCObject):
         return True
 
 
-class Source(QPCObject):
+class Source(KOKUObject):
     """A class to aid in CRUD test cases for sources.
 
-    Sources can be created on the quipucords server by
+    Sources can be created on the Koku server by
     instantiating a Source object. A unique name and username are
     provided by default. In order to create a valid source,
     you must specify at least one existing host credential and one host.
@@ -292,7 +292,7 @@ class Source(QPCObject):
         """
         super().__init__(client=client, _id=_id)
         self.name = uuid4() if name is None else name
-        self.endpoint = QPC_SOURCE_PATH
+        self.endpoint = KOKU_SOURCE_PATH
         self.hosts = hosts
         if port is not None:
             self.port = port
@@ -305,7 +305,7 @@ class Source(QPCObject):
         """Return true if both objects are equivalent.
 
         :param other: This can be either another Source or a dictionary
-            or json object returned from the QPC server (or crafted by hand.)
+            or json object returned from the KOKU server (or crafted by hand.)
             If `other` is a Source instance, the two object's fields()
             will be compared. Otherwise, we must extract the credential id's
             from the json returned by the server into a list, because that is
@@ -334,7 +334,7 @@ class Source(QPCObject):
                         default_port)):
                     return False
             if key == 'options':
-                if self.source_type in QPC_HOST_MANAGER_TYPES:
+                if self.source_type in KOKU_HOST_MANAGER_TYPES:
                     if hasattr(self, 'options'):
                         ssl_verify = self.options.get('ssl_cert_verify', True)
                     else:
@@ -360,7 +360,7 @@ class Source(QPCObject):
         return True
 
 
-class Scan(QPCObject):
+class Scan(KOKUObject):
     """A class to aid in CRUD test cases for scan jobs.
 
     Scans are named objects on the server that can then be used to generate any
@@ -409,7 +409,7 @@ class Scan(QPCObject):
         super().__init__(client=client, _id=_id)
 
         self.sources = source_ids
-        self.endpoint = QPC_SCAN_PATH
+        self.endpoint = KOKU_SCAN_PATH
         self.name = uuid4() if name is None else name
 
         # valid scan types are 'connect' and 'inspect'
@@ -449,7 +449,7 @@ class Scan(QPCObject):
         """Return true if both objects are equivalent.
 
         :param other: This can be either another Scan or a dictionary
-            or json object returned from the QPC server (or crafted by hand.)
+            or json object returned from the KOKU server (or crafted by hand.)
             If `other` is a Scan instance, the two object's fields()
             will be compared.
 
@@ -483,7 +483,7 @@ class Scan(QPCObject):
         return True
 
 
-class ScanJob(QPCObject):
+class ScanJob(KOKUObject):
     """A class to aid in the creation and control of Scan Jobs in tests."""
 
     def __init__(
@@ -496,7 +496,7 @@ class ScanJob(QPCObject):
         super().__init__(client=client, _id=_id)
 
         self.scan_id = scan_id
-        self.endpoint = QPC_SCANJOB_PATH
+        self.endpoint = KOKU_SCANJOB_PATH
 
     def create(self, **kwargs):
         """Send POST request to the scan's job endpoint.
@@ -513,7 +513,7 @@ class ScanJob(QPCObject):
         :returns: requests.models.Response. The json of this response contains
             the data associated with this object's ``self._id``.
         """
-        path = urljoin(QPC_SCAN_PATH, '{}/jobs/'.format(self.scan_id))
+        path = urljoin(KOKU_SCAN_PATH, '{}/jobs/'.format(self.scan_id))
         response = self.client.post(path, payload=self.payload(), **kwargs)
         if response.status_code in range(200, 203):
             self._id = response.json().get('id')
@@ -532,7 +532,7 @@ class ScanJob(QPCObject):
             contains a list of dictionaries with the data associated with each
             object of this type stored on the server.
         """
-        path = urljoin(QPC_SCAN_PATH, '{}/jobs/'.format(self.scan_id))
+        path = urljoin(KOKU_SCAN_PATH, '{}/jobs/'.format(self.scan_id))
         return self.client.get(path, **kwargs)
 
     def pause(self, **kwargs):
@@ -599,7 +599,7 @@ class ScanJob(QPCObject):
         )
 
 
-class Report(QPCObject):
+class Report(KOKUObject):
     """A class to aid in the creation and control of Reports.
 
     Reports are generated by the fact collection carried out through
@@ -638,7 +638,7 @@ class Report(QPCObject):
         """Initialize a Report Object."""
         super().__init__(client=client, _id=_id)
 
-        self.endpoint = QPC_REPORTS_PATH
+        self.endpoint = KOKU_REPORTS_PATH
         self._id = _id
 
     def retrieve_from_scan_job(self, scan_job_id, **kwargs):
@@ -648,7 +648,7 @@ class Report(QPCObject):
         :param ``**kwargs``: Additional arguments accepted by Requests's
             `request.request()` method.
         """
-        path = urljoin(QPC_SCANJOB_PATH, str(scan_job_id), '/')
+        path = urljoin(KOKU_SCANJOB_PATH, str(scan_job_id), '/')
         response = self.client.get(path, **kwargs)
         if response.status_code in range(200, 203):
             self._id = response.json().get('report_id')
