@@ -332,7 +332,7 @@ KOKU_SCAN_TERMINAL_STATES = ('completed', 'failed', 'paused', 'canceled')
 KOKU_SCAN_STATES = KOKU_SCAN_TERMINAL_STATES + ('running',)
 """All the states that a koku scan can take."""
 
-KOKU_TOKEN_PATH = 'token/'
+KOKU_TOKEN_PATH = 'token-auth/'
 """The path to the endpoint used for obtaining an authentication token."""
 
 KOKU_SOURCE_TYPES = ('vcenter', 'network', 'satellite')

@@ -168,7 +168,7 @@ class Credential(KOKUObject):
 
     Example::
         >>> from kokuqe import api
-        >>> from kokuqe.qpc_models import Credential
+        >>> from kokuqe.koku_models import Credential
         >>> client = api.KOKUClient()
         >>> cred = Credential(cred_type='network', password='foo')
         >>> # The create method automatically sets the credential's `_id`
@@ -263,7 +263,7 @@ class Source(KOKUObject):
     you must specify at least one existing host credential and one host.
 
     Example::
-        >>> from kokuqe.qpc_models import Source
+        >>> from kokuqe.koku_models import Source
         >>>
         >>> cred = Credential(cred_type='network',password='foo')
         >>> cred.create()

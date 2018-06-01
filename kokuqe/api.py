@@ -128,10 +128,10 @@ class Client(object):
 
         If no URL is specified, then the config file will be parsed and the URL
         will be built by reading the hostname, port and https values. You can
-        configure the default URL by including the following on your Camayoc
+        configure the default URL by including the following on your Koku-qe
         configuration file::
 
-            qpc:
+            koku:
                 hostname: <machine_hostname_or_ip_address>
                 port: <port>  # if not defined will take the default port
                               # depending on the https config: 80 if https is
@@ -141,7 +141,7 @@ class Client(object):
         """
         self.url = url
         self.token = None
-        cfg = config.get_config().get('qpc', {})
+        cfg = config.get_config().get('koku', {})
         self.verify = cfg.get('ssl-verify', False)
 
         if not self.url:
@@ -149,7 +149,7 @@ class Client(object):
 
             if not hostname:
                 raise exceptions.KOKUBaseUrlNotFound(
-                    "\n'qpc' section specified in kokuqe config file, but"
+                    "\n'koku' section specified in kokuqe config file, but"
                     "no 'hostname' key found."
                 )
 
@@ -174,7 +174,7 @@ class Client(object):
 
     def login(self):
         """Login to the server to receive an authorization token."""
-        cfg = config.get_config().get('qpc', {})
+        cfg = config.get_config().get('kokuqe', {})
         server_username = cfg.get('username', 'admin')
         server_password = cfg.get('password', 'pass')
         login_request = self.request(

@@ -32,7 +32,7 @@ def get_config():
     """
     global _CONFIG  # pylint:disable=global-statement
     if _CONFIG is None:
-        with open(_get_config_file_path('kokuqe', 'config.yaml')) as f:
+        with open(_get_config_file_path('koku-qe', 'config.yaml')) as f:
             _CONFIG = yaml.load(f)
     return deepcopy(_CONFIG)
 
