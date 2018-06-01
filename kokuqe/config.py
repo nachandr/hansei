@@ -12,7 +12,7 @@ from xdg import BaseDirectory
 
 import yaml
 
-from camayoc import exceptions
+from kokuqe import exceptions
 
 
 # `get_config` uses this as a cache. It is intentionally a global. This design
@@ -32,7 +32,7 @@ def get_config():
     """
     global _CONFIG  # pylint:disable=global-statement
     if _CONFIG is None:
-        with open(_get_config_file_path('camayoc', 'config.yaml')) as f:
+        with open(_get_config_file_path('kokuqe', 'config.yaml')) as f:
             _CONFIG = yaml.load(f)
     return deepcopy(_CONFIG)
 
@@ -51,7 +51,7 @@ def _get_config_file_path(xdg_config_dir, xdg_config_file):
     :param xdg_config_file: A string. The name of the configuration file that
         is being searched for.
     :returns: A string. A path to a configuration file.
-    :raises camayoc.exceptions.ConfigFileNotFoundError: If the requested
+    :raises kokuqe.exceptions.ConfigFileNotFoundError: If the requested
         configuration file cannot be found.
     """
     path = BaseDirectory.load_first_config(xdg_config_dir, xdg_config_file)

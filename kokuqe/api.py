@@ -13,9 +13,9 @@ from urllib.parse import urljoin, urlunparse
 import requests
 from requests.exceptions import HTTPError
 
-from camayoc import config
-from camayoc import exceptions
-from camayoc.constants import (
+from kokuqe import config
+from kokuqe import exceptions
+from kokuqe.constants import (
     KOKU_API_VERSION,
     KOKU_TOKEN_PATH,
 )
@@ -80,7 +80,7 @@ def code_handler(response):
 def json_handler(response):
     """Like ``code_handler``, but also return a JSON-decoded response body.
 
-    Do what :func:`camayoc.api.code_handler` does. In addition, decode the
+    Do what :func:`kokuqe.api.code_handler` does. In addition, decode the
     response body as JSON and return the result.
     """
     raise_error_for_status(response)
@@ -98,13 +98,13 @@ class Client(object):
     handling mechanisms.
 
     All requests made via this client use the base URL of the qpc server
-    provided in your ``$XDG_CONFIG_HOME/camayoc/config.yaml``.
+    provided in your ``$XDG_CONFIG_HOME/kokuqe/config.yaml``.
 
     You can override this base url by assigning a new value to the url
     field.
 
     Example::
-        >>> from camayoc import api
+        >>> from kokuqe import api
         >>> client = api.Client()
         >>> # I can now make requests to the KOKU server
         >>> # using relative paths, because the base url is
@@ -149,7 +149,7 @@ class Client(object):
 
             if not hostname:
                 raise exceptions.KOKUBaseUrlNotFound(
-                    "\n'qpc' section specified in camayoc config file, but"
+                    "\n'qpc' section specified in kokuqe config file, but"
                     "no 'hostname' key found."
                 )
 
@@ -162,7 +162,7 @@ class Client(object):
         if not self.url:
             raise exceptions.KOKUBaseUrlNotFound(
                 'No base url was specified to the client either with the '
-                'url="host" option or with the camayoc config file.')
+                'url="host" option or with the kokuqe config file.')
 
         if response_handler is None:
             self.response_handler = code_handler

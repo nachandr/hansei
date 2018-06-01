@@ -1,6 +1,6 @@
 # coding=utf-8
 """Values usable by multiple test modules."""
-from camayoc import utils
+from kokuqe import utils
 
 RHO_CONNECTION_FACTS = (
     'connection.host',

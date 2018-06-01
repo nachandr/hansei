@@ -7,7 +7,7 @@ quipucords project and to the appropriate sprint milestone so we can track what
 work we get done each sprint.
 
 When making a PR, please request a review from at least on member of the
-quipucords/quality-engineers team.
+koku/quality-engineers team.
 
 Please squash commits into logical changesets with informative commit messages
 before merging. Additionally, rebase onto master and resolve any merge conficts

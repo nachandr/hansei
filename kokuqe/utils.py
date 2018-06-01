@@ -8,8 +8,8 @@ import tempfile
 import uuid
 from urllib.parse import urlunparse
 
-from camayoc import exceptions
-from camayoc.config import get_config
+from kokuqe import exceptions
+from kokuqe.config import get_config
 
 
 # TODO: Koku doesn't really need to store data in XDG default dirs...i think
@@ -38,7 +38,7 @@ def get_koku_url():
     if not hostname:
         raise exceptions.KokuBaseUrlNotFound(
             'Make sure you have a "koku" section and `hostname`is specified in '
-            'the camayoc config file'
+            'the kokuqe config file'
         )
 
     scheme = 'https' if cfg.get('https', False) else 'http'

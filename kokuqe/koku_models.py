@@ -5,8 +5,8 @@ import re
 from pprint import pformat
 from urllib.parse import urljoin
 
-from camayoc import api
-from camayoc.constants import (
+from kokuqe import api
+from kokuqe.constants import (
     MASKED_PASSWORD_OUTPUT,
     KOKU_CREDENTIALS_PATH,
     KOKU_HOST_MANAGER_TYPES,
@@ -15,7 +15,7 @@ from camayoc.constants import (
     KOKU_SCAN_PATH,
     KOKU_SOURCE_PATH,
 )
-from camayoc.utils import uuid4
+from kokuqe.utils import uuid4
 
 OPTIONAL_PROD_KEY = 'disabled_optional_products'
 
@@ -37,7 +37,7 @@ class KOKUObject(object):
         """Return a dictionary with all fields.
 
         The fields are all data items that may be returned when a `GET` request
-        is sent to the endpoint. It excludes items specific to camayoc such as
+        is sent to the endpoint. It excludes items specific to kokuqe such as
         the client and endpoint associated with objects of this type.
         """
         fields = self.payload()
@@ -167,8 +167,8 @@ class Credential(KOKUObject):
     password or ssh_keyfile.
 
     Example::
-        >>> from camayoc import api
-        >>> from camayoc.qpc_models import Credential
+        >>> from kokuqe import api
+        >>> from kokuqe.qpc_models import Credential
         >>> client = api.KOKUClient()
         >>> cred = Credential(cred_type='network', password='foo')
         >>> # The create method automatically sets the credential's `_id`
@@ -263,7 +263,7 @@ class Source(KOKUObject):
     you must specify at least one existing host credential and one host.
 
     Example::
-        >>> from camayoc.qpc_models import Source
+        >>> from kokuqe.qpc_models import Source
         >>>
         >>> cred = Credential(cred_type='network',password='foo')
         >>> cred.create()

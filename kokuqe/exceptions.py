@@ -5,7 +5,7 @@
 class CalledProcessError(Exception):
     """Indicates a CLI process has a non-zero return code.
 
-    See :meth:`camayoc.cli.CompletedProcess` for more information.
+    See :meth:`kokuqe.cli.CompletedProcess` for more information.
     """
 
     def __str__(self):
@@ -20,7 +20,7 @@ class CalledProcessError(Exception):
 class ConfigFileNotFoundError(Exception):
     """We cannot find the requested Camayoc configuration file.
 
-    See :mod:`camayoc.config` for more information on how configuration files
+    See :mod:`kokuqe.config` for more information on how configuration files
     are handled.
     """
 
