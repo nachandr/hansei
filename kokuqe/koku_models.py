@@ -187,8 +187,21 @@ class KokuCustomer(KokuObject):
 
 class KokuUser(KokuObject):
     def __init__(self, client=None, uuid=None, username=None, email=None, password=None):
+        """
+        Arguments:
+            client - Existing `kokuqe.api.client` object to use for authentication.
+                This client authentication will determine what koku features client has access to
+            uuid - UUID of an existing customer
+            username - Username for the user
+            email - User email address
+            password - User password
+        """
         super().__init__(client=client, uuid=uuid)
         self.endpoint = KOKU_USER_PATH
         self.username = username
         self.email = email
         self.password = password
+
+    def get_current_user(self):
+        """Send GET request return the user assigned to the client authentication token"""
+        return self.client.get_user()
