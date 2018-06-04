@@ -161,7 +161,7 @@ class Client(object):
             hostname = cfg.get('hostname')
 
             if not hostname:
-                raise exceptions.KOKUBaseUrlNotFound(
+                raise exceptions.KokuBaseUrlNotFound(
                     "\n'koku' section specified in kokuqe config file, but"
                     "no 'hostname' key found."
                 )
