@@ -16,3 +16,6 @@ KOKU_TOKEN_PATH = 'token-auth/'
 
 """The path to the endpoint used for working with customers."""
 KOKU_CUSTOMER_PATH = 'customers/'
+
+"""The path to the endpoint used for working with users."""
+KOKU_USER_PATH = 'users/'

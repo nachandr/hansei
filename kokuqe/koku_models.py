@@ -8,6 +8,7 @@ from kokuqe import api
 from kokuqe.exceptions import KokuException
 from kokuqe.constants import (
     KOKU_CUSTOMER_PATH,
+    KOKU_USER_PATH,
 )
 
 class KokuObject(object):
@@ -184,9 +185,10 @@ class Customer(KokuObject):
         self.name = name
         self.owner = owner
 
-"""
 class User(KokuObject):
+    def __init__(self, client=None, uuid=None, username=None, email=None, password=None):
         super().__init__(client=client, uuid=uuid)
-        self.endpoint = KOKU_CUSTOMER_PATH
-
-"""
+        self.endpoint = KOKU_USER_PATH
+        self.username = username
+        self.email = email
+        self.password = password
