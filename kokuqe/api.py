@@ -112,7 +112,7 @@ class Client(object):
         >>> # using relative paths, because the base url is
         >>> # was set using my config file.
         >>>
-        >>> client.get('/credentials/hosts/')
+        >>> client.get('customers/users/')
         >>>
         >>> # now if I want to do something else,
         >>> # I can change the base url
@@ -121,7 +121,9 @@ class Client(object):
     .. _Requests: http://docs.python-requests.org/en/master/
     """
 
-    def __init__(self, response_handler=None, url=None, authenticate=True):
+    def __init__(
+            self, response_handler=None, url=None,
+            authenticate=True, server_username=None, server_password=None):
         """Initialize this object, collecting base URL from config file.
 
         If no response handler is specified, use the `code_handler` which will
@@ -145,6 +147,8 @@ class Client(object):
             response_handler - Customer handler wrapper for formatting response
             url - Url for the Koku server. Default is localhost (127.0.0.1)
             authenticate - If True, login to the server during initialization
+            server_username - Username used for server authentication
+            server_password - Password used for server authentication
         """
         # Stores the response of the last request made.
         self._last_response = None
@@ -179,7 +183,7 @@ class Client(object):
             self.response_handler = response_handler
 
         if authenticate:
-            self.login()
+            self.login(username=server_username, password=server_password)
 
     def login(self, username=None, password=None):
         """Login to the server to receive an authorization token.
@@ -221,6 +225,14 @@ class Client(object):
         url = urljoin(self.url, 'users/current/')
         return self.request('GET', url, **kwargs)
 
+    def server_status(self, **kwargs):
+        """Get the Koku server status
+
+        Send a GET request to /api/v1/status
+        """
+        url = urljoin(self.url, 'status/')
+        return self.request('GET', url, **kwargs)
+
     def default_headers(self):
         """Build the headers for our request to the server."""
         if self.token:
@@ -228,32 +240,56 @@ class Client(object):
         return {}
 
     def delete(self, endpoint, **kwargs):
-        """Send an HTTP DELETE request."""
+        """Send an HTTP DELETE request.
+        Arguments:
+            endpoint - API endpoint to send request
+        """
         url = urljoin(self.url, endpoint)
         return self.request('DELETE', url, **kwargs)
 
     def get(self, endpoint, **kwargs):
-        """Send an HTTP GET request."""
+        """Send an HTTP GET request.
+
+        Arguments:
+            endpoint - API endpoint to send request
+        """
         url = urljoin(self.url, endpoint)
         return self.request('GET', url, **kwargs)
 
     def options(self, endpoint, **kwargs):
-        """Send an HTTP OPTIONS request."""
+        """Send an HTTP OPTIONS request.
+
+        Arguments:
+            endpoint - API endpoint to send request
+        """
         url = urljoin(self.url, endpoint)
         return self.request('OPTIONS', url, **kwargs)
 
     def head(self, endpoint, **kwargs):
-        """Send an HTTP HEAD request."""
+        """Send an HTTP HEAD request.
+
+        Arguments:
+            endpoint - API endpoint to send request
+        """
         url = urljoin(self.url, endpoint)
         return self.request('HEAD', url, **kwargs)
 
     def post(self, endpoint, payload, **kwargs):
-        """Send an HTTP POST request."""
+        """Send an HTTP POST request.
+        Arguments:
+            endpoint - API endpoint to send request
+            payload - json data to include in the request
+        """
         url = urljoin(self.url, endpoint)
         return self.request('POST', url, json=payload, **kwargs)
 
     def put(self, endpoint, payload, **kwargs):
-        """Send an HTTP PUT request."""
+        """Send an HTTP PUT request.
+
+        Arguments:
+            endpoint - API endpoint to send request
+            payload - json data to include in the request
+        """
         url = urljoin(self.url, endpoint)
         return self.request('PUT', url, json=payload, **kwargs)
 
