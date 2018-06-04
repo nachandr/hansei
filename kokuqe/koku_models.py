@@ -1,21 +1,21 @@
 # coding: utf-8
 """Models for use with the Koku API."""
 
-import re
 from pprint import pformat
 from urllib.parse import urljoin
 
 from kokuqe import api
+from kokuqe.exceptions import KokuException
 from kokuqe.constants import (
     KOKU_CUSTOMER_PATH,
 )
-from kokuqe.utils import uuid4
-
-OPTIONAL_PROD_KEY = 'disabled_optional_products'
-
 
 class KokuObject(object):
-    """A base class for other KOKU models."""
+    """A base class for other KOKU models.
+
+    Child classes should define member variables that match the names and format supplied in a POST
+    request used to create this object on the koku server
+    """
 
     def __init__(
             self,
@@ -53,7 +53,7 @@ class KokuObject(object):
             if k not in ['uuid',
                          'client',
                          'endpoint',
-                         ]
+                        ]
         }
 
     def update_payload(self):
@@ -65,7 +65,7 @@ class KokuObject(object):
                          'endpoint',
                          'cred_type',
                          'source_type'
-                         ]
+                        ]
         }
 
     def to_str(self):
@@ -149,12 +149,13 @@ class KokuObject(object):
         """
         return self.client.delete(self.path(), **kwargs)
 
-    def refresh(self):
-        """Send a GET request based on the current uuid to refresh the current fields"""
+    def reload(self):
+        """Send a GET request based on the current uuid to reload the current member data"""
         if not self.uuid:
-            raise KokuException('Unable to refresh {} object. No uuid specified'.format(self.__class__))
+            raise KokuException(
+                'Unable to refresh {} object. No uuid specified'.format(self.__class__))
 
-        response = self.client.get(self.path())
+        response = self.read()
         response_data = response.json()
 
         self_vars = self.payload()
@@ -182,7 +183,3 @@ class Customer(KokuObject):
         self.endpoint = KOKU_CUSTOMER_PATH
         self.name = name
         self.owner = owner
-
-    def get_customer(self):
-        customer_endpoint = '{}/{}/'.format(self.endpoint, self.uuid)
-        return self.client.get(customer_endpoint) 
