@@ -173,8 +173,8 @@ class Customer(KokuObject):
                 This client authentication will determine what koku features client has access to
             uuid - UUID of an existing customer
             name - Name of the customer
-            owner - Type:Dictionary. Customer owner information
-                Keys:
+            owner - Customer owner information
+                Dictionary Keys:
                     username - Username for the owner
                     email - Owner email address
                     password - Owner user password
@@ -183,3 +183,10 @@ class Customer(KokuObject):
         self.endpoint = KOKU_CUSTOMER_PATH
         self.name = name
         self.owner = owner
+
+"""
+class User(KokuObject):
+        super().__init__(client=client, uuid=uuid)
+        self.endpoint = KOKU_CUSTOMER_PATH
+
+"""
