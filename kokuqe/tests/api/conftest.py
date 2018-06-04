@@ -3,7 +3,7 @@ import fauxfactory
 import pytest
 
 from kokuqe import config
-from kokuqe.koku_models import Customer, User
+from kokuqe.koku_models import KokuCustomer, KokuUser
 
 @pytest.fixture
 def koku_config():
@@ -13,7 +13,7 @@ def koku_config():
 
 @pytest.fixture
 def new_customer():
-    """Create a new Koku customer with random info"""
+    """Create a new Koku Kcustomer with random info"""
     uniq_string = fauxfactory.gen_string('alphanumeric', 8)
     name='Customer {}'.format(uniq_string)
     owner={
@@ -22,7 +22,7 @@ def new_customer():
         'password': 'redhat', }
 
     #TODO: Implement lazy authentication of the client for new KokuObject() fixtures
-    return Customer(name=name, owner=owner)
+    return KokuCustomer(name=name, owner=owner)
 
 
 @pytest.fixture
@@ -31,7 +31,7 @@ def new_user():
     uniq_string = fauxfactory.gen_string('alphanumeric', 8)
 
     #TODO: Implement lazy authentication of the client for new KokuObject() fixtures
-    return User(
+    return KokuUser(
         username='user_{}'.format(uniq_string),
         email='user_{0}@{0}.com'.format(uniq_string),
         password='redhat')

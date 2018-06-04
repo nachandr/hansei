@@ -1,8 +1,7 @@
 import fauxfactory
 
-from kokuqe.koku_models import Customer 
 
-def test_crud_customer(new_customer):
+def test_customer_crud(new_customer):
     """Create a new customer, read the customer data from the server and delete the customer"""
 
     # All requests will throw an exception if response is an error code

@@ -164,7 +164,7 @@ class KokuObject(object):
             if key in self_vars:
                 setattr(self, key, response_data[key])
 
-class Customer(KokuObject):
+class KokuCustomer(KokuObject):
     """A class to create a Koku customer"""
 
     def __init__(self, client=None, uuid=None, name=None, owner=None):
@@ -185,7 +185,7 @@ class Customer(KokuObject):
         self.name = name
         self.owner = owner
 
-class User(KokuObject):
+class KokuUser(KokuObject):
     def __init__(self, client=None, uuid=None, username=None, email=None, password=None):
         super().__init__(client=client, uuid=uuid)
         self.endpoint = KOKU_USER_PATH
