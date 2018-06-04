@@ -18,6 +18,8 @@ from kokuqe import exceptions
 from kokuqe.constants import (
     KOKU_API_VERSION,
     KOKU_TOKEN_PATH,
+    KOKU_DEFAULT_USER,
+    KOKU_DEFAULT_PASSWORD,
 )
 
 
@@ -138,6 +140,11 @@ class Client(object):
                               # false and 443 if https is true.
                 https: false  # change to true if server is published over
                               # https. Defaults to false if not defined
+
+        Arguments: 
+            response_handler - Customer handler wrapper for formatting response
+            url - Url for the Koku server. Default is localhost (127.0.0.1)
+            authenticate - If True, login to the server during initialization
         """
         # Stores the response of the last request made.
         self._last_response = None
@@ -174,11 +181,16 @@ class Client(object):
         if authenticate:
             self.login()
 
-    def login(self):
-        """Login to the server to receive an authorization token."""
-        cfg = config.get_config().get('kokuqe', {})
-        server_username = cfg.get('username', 'admin')
-        server_password = cfg.get('password', 'pass')
+    def login(self, username=None, password=None):
+        """Login to the server to receive an authorization token.
+        
+        Arguments:
+            username - Username for initial server authentication
+            password - Password for initial server authentication
+        """
+        cfg = config.get_config().get('koku', {})
+        server_username = username or cfg.get('username', KOKU_DEFAULT_USER)
+        server_password = password or cfg.get('password', KOKU_DEFAULT_PASSWORD)
         login_request = self.request(
             'POST',
             urljoin(self.url, KOKU_TOKEN_PATH),
@@ -196,6 +208,7 @@ class Client(object):
         Send a PUT request /api/v1/users/logout to make
         current token invalid.
         """
+        raise NotImplementedError("USER LOGOUT CURRENTLY NOT IMPLEMENTED")
         url = urljoin(self.url, 'users/logout/')
         self.request('PUT', url, **kwargs)
         self.token = None

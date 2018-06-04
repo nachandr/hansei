@@ -1,6 +1,6 @@
 ---
 koku:
-    # this is how you would configure quipucords if running
+    # this is how you would configure koku if running
     # the development server
     # if running in a container, set the port to 443
     # and https to true. Keep ssl-verify false unless you've
