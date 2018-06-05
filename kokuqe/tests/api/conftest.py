@@ -10,7 +10,6 @@ def koku_config():
     return config.get_config().get('koku', {})
 
 
-
 @pytest.fixture
 def new_customer():
     """Create a new Koku Kcustomer with random info"""

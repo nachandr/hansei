@@ -1,19 +1,53 @@
 import fauxfactory
+import pytest
+
+from kokuqe.koku_models import KokuCustomer, KokuUser
 
 
-def test_customer_crud(new_customer):
+class TestCustomerCrud(object):
     """Create a new customer, read the customer data from the server and delete the customer"""
 
-    # All requests will throw an exception if response is an error code
-    response = new_customer.create()
+    @pytest.fixture(scope='class')
+    def customer(self):
+        """Create a new Koku customer with random info"""
+        uniq_string = fauxfactory.gen_string('alphanumeric', 8)
+        name='Customer {}'.format(uniq_string)
+        owner={
+            'username': 'user_{}'.format(uniq_string),
+            'email': 'user_{0}@{0}.com'.format(uniq_string),
+            'password': 'redhat', }
 
-    assert new_customer.uuid, 'No customer uuid created for customer'
+        #TODO: Implement lazy authentication of the client for new KokuObject() fixtures
+        return KokuCustomer(name=name, owner=owner)
 
-    #TODO: Implement test for update when koku api supports PUT
 
-    new_customer.delete()
-    response = new_customer.list()
+    def test_customer_create(self, customer):
+        customer.create()
 
-    response_results = response.json()['results']
-    for cust in response_results:
-        assert cust['uuid'] != new_customer.uuid, "Customer was not deleted from the koku server"
+        assert customer.uuid, 'No customer uuid created for customer'
+
+    def test_customer_read(self, customer):
+        server_customer = customer.read().json()
+
+        # TODO: Overload equivalence for KokuObjects
+        assert server_customer['uuid'] == customer.uuid, 'Customer info cannot be read from the server'
+
+        customer_list_response = customer.list().json()
+        assert customer_list_response['count'] > 0, 'No customers available on server'
+
+        customer_uuid_list = [cust['uuid'] for cust in customer_list_response['results']]
+        assert customer.uuid in customer_uuid_list, 'Customer uuid is not listed in the Koku server list'
+
+
+    @pytest.mark.skip(reason="Customer update not implemented")
+    def test_customer_update(self, customer):
+        assert 0
+
+    def test_customer_delete(self, customer):
+        customer.delete()
+        response = customer.list()
+
+        response_results = response.json()['results']
+        for cust in response_results:
+            assert cust['uuid'] != customer.uuid, "Customer was not deleted from the koku server"
+
