@@ -22,8 +22,12 @@ class KokuObject(object):
             self,
             client=None,
             uuid=None):
-        """Provide shared methods for KOKU model objects."""
-        # we want to allow for an empty string name
+        """Provide shared methods for KOKU model objects.
+
+        Arguments:
+            client - ``kokuqe.api.Client`` instance used to communicate with the Koku server
+            uuid - Koku uuid for the Koku object
+        """
         self.uuid = uuid
         self.client = client if client else api.Client()
         self.endpoint = ''
@@ -164,6 +168,14 @@ class KokuObject(object):
             if key in self_vars:
                 setattr(self, key, response_data[key])
 
+    def last_response(self):
+        """Return the response of the most recent Koku rest api call
+
+        Returns ```kokuqe.api.Client.last_response```
+        """
+        return self.client.last_response
+
+
 class KokuCustomer(KokuObject):
     """A class to create a Koku customer"""
 
@@ -185,6 +197,7 @@ class KokuCustomer(KokuObject):
         self.name = name
         self.owner = owner
 
+
 class KokuUser(KokuObject):
     def __init__(self, client=None, uuid=None, username=None, email=None, password=None):
         """
@@ -201,6 +214,7 @@ class KokuUser(KokuObject):
         self.username = username
         self.email = email
         self.password = password
+
 
     def get_current_user(self):
         """Send GET request return the user assigned to the client authentication token"""

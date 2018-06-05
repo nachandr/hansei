@@ -1,34 +1,79 @@
 import fauxfactory
+import pytest
+
+from kokuqe.koku_models import KokuCustomer, KokuUser
 
 
-def test_user_crud(new_customer, new_user):
-    """Create a new user, read the user data from the server and delete the user"""
+class TestUserCrud(object):
+    @pytest.fixture(scope='class')
+    def customer(self):
+        """Create a new Koku customer with random info"""
+        uniq_string = fauxfactory.gen_string('alphanumeric', 8)
+        name = 'Customer {}'.format(uniq_string)
+        owner = {
+            'username': 'user_{}'.format(uniq_string),
+            'email': 'user_{0}@{0}.com'.format(uniq_string),
+            'password': 'redhat', }
 
-    # All requests will throw an exception if response is an error code
-    response = new_customer.create()
+        #TODO: Implement lazy authentication of the client for new KokuObject() fixtures
+        customer = KokuCustomer(name=name, owner=owner)
+        customer.create()
+        assert customer.uuid, 'No customer uuid created for customer'
 
-    # Login as the newly created customer user
-    new_customer.client.login(
-            username=new_customer.owner['username'], password=new_customer.owner['password'])
+        yield customer
+
+        # Login as the admin user to delete the customer
+        customer.client.login()
+        customer.delete()
+
+    @pytest.fixture(scope='class')
+    def user(self):
+        """Create a new Koku user without authenticating to the server"""
+        uniq_string = fauxfactory.gen_string('alphanumeric', 8)
+
+        #TODO: Implement lazy authentication of the client for new KokuObject() fixtures
+        return KokuUser(
+            username='user_{}'.format(uniq_string),
+            email='user_{0}@{0}.com'.format(uniq_string),
+            password='redhat')
 
 
-    # Use the customer client with token auth for the customer owner
-    new_user.client.token = new_customer.client.token
-    # All requests will throw an exception if response is an error code
-    response = new_user.create()
-    assert new_user.uuid, 'No uuid created for user'
+    def test_user_create(self, customer, user):
+        """Create a new user, read the user data from the server and delete the user"""
+        # Login as the newly created customer user
+        customer.client.login(
+            username=customer.owner['username'], password=customer.owner['password'])
 
-    ##############################################
-    #TODO: Implement test for update when koku api supports PUT
-    ##############################################
+        # Use the token auth associated with the customer owner
+        user.client.token = customer.client.token
 
-    new_user.delete()
-    response = new_user.list()
+        # All requests will throw an exception if response is an error code
+        response = user.create()
+        assert user.uuid, 'No uuid created for user'
 
-    response_results = response.json()['results']
-    for user in response_results:
-        assert user['uuid'] != new_user.uuid, "user was not deleted from the koku server"
 
-    # Login as the admin user to delete the customer
-    new_customer.client.login()
-    new_customer.delete()
+    def test_user_read(self, user):
+        server_user = user.read().json()
+
+        # TODO: Overload equivalence for KokuObjects
+        assert server_user['uuid'] == user.uuid, 'User info cannot be read from the server'
+
+        user_list_response = user.list().json()
+        assert user_list_response['count'] > 0, 'No users available on server'
+
+        user_uuid_list = [cust['uuid'] for cust in user_list_response['results']]
+        assert user.uuid in user_uuid_list, 'user uuid is not listed in the Koku server list'
+
+
+    @pytest.mark.skip(reason="User update not implemented")
+    def test_user_update(self):
+        assert 0
+
+
+    def test_user_delete(self, user):
+        user.delete()
+        response = user.list()
+
+        response_results = response.json()['results']
+        for server_user in response_results:
+            assert server_user['uuid'] != user.uuid, "User was not deleted from the koku server"
