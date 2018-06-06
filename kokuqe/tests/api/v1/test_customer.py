@@ -17,7 +17,7 @@ class TestCustomerCrud(object):
             'email': 'user_{0}@{0}.com'.format(uniq_string),
             'password': 'redhat', }
 
-        #TODO: Implement lazy authentication of the client for new KokuObject() fixtures
+        #TODO: Implement lazy authentication of the client for new KokuObject()
         return KokuCustomer(name=name, owner=owner)
 
 
@@ -29,7 +29,6 @@ class TestCustomerCrud(object):
     def test_customer_read(self, customer):
         server_customer = customer.read().json()
 
-        # TODO: Overload equivalence for KokuObjects
         assert server_customer['uuid'] == customer.uuid, 'Customer info cannot be read from the server'
 
         customer_list_response = customer.list().json()

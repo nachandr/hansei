@@ -11,6 +11,8 @@ from kokuqe.constants import (
     KOKU_USER_PATH,
 )
 
+#TODO: Fix client usage b/c it's creating a cyclical problem where a KokuUser requires authentication provided by
+#      KokuCustomer authorization to perform create/delete actions
 class KokuObject(object):
     """A base class for other KOKU models.
 
@@ -68,8 +70,6 @@ class KokuObject(object):
             if k not in ['uuid',
                          'client',
                          'endpoint',
-                         'cred_type',
-                         'source_type'
                         ]
         }
 
@@ -168,6 +168,7 @@ class KokuObject(object):
             if key in self_vars:
                 setattr(self, key, response_data[key])
 
+    @property
     def last_response(self):
         """Return the response of the most recent Koku rest api call
 
@@ -215,7 +216,67 @@ class KokuUser(KokuObject):
         self.email = email
         self.password = password
 
+    def __enter__(self):
+        self._orig_token = self.client.token
+        self.client.login(self.username, self.password)
 
-    def get_current_user(self):
+    def __exit__(self, *args, **kwargs):
+        self.client.token = self._orig_token
+        self._orig_token = None
+
+    def read_current_user(self):
         """Send GET request return the user assigned to the client authentication token"""
         return self.client.get_user()
+
+    def path_user_preference(self, pref_uuid=None):
+        """Return the endpoint for a user preference
+
+        Arguments:
+            pref_uuid - preference uuid of the endpoint
+        """
+        pref_path = '{}preferences/{}'.format(
+            self.path(),
+            '{}/'.format(pref_uuid) if pref_uuid else '')
+        return pref_path
+
+    def create_preference(self, name, preference, description=None):
+        """Send POST request to create a user preference
+
+        Arguments:
+            name - Name of the preference to create
+            preference - User preference (single item) dictionary containing
+                a key=>value pair of the of user_preference=>value
+                {'my-preference-name': 'my-preference-value'}
+        """
+        payload = {'name': name, 'preference': preference, 'description': description, }
+        return self.client.post(self.path_user_preference(), payload=payload)
+
+    def read_preference(self, pref_uuid=None):
+        """Send GET request for user preference(s)
+        Argument:
+            preference_uuid -
+                If None, return a list of all user preferences
+                else a user preference
+        """
+        return self.client.get(self.path_user_preference(pref_uuid))
+
+    def update_preference(self, pref_uuid, name=None, description=None, preference=None):
+        """SEND PUT request to update a user preference"""
+        payload = {}
+        if name:
+            payload['name'] = name
+
+        if preference:
+            payload['preference'] = preference
+
+        if description:
+            payload['description'] = description
+
+        return self.client.put(self.path_user_preference(pref_uuid), payload=payload)
+
+    def delete_preference(self, pref_uuid):
+        """Send DELETE request to delete a user preference
+        Argument:
+            preference_uuid - uuid of the user preference to remove
+        """
+        return self.client.delete(self.path_user_preference(pref_uuid))
