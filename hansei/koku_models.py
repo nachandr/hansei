@@ -4,9 +4,9 @@
 from pprint import pformat
 from urllib.parse import urljoin
 
-from kokuqe import api, config
-from kokuqe.exceptions import KokuException
-from kokuqe.constants import (
+from hansei import api, config
+from hansei.exceptions import KokuException
+from hansei.constants import (
     KOKU_DEFAULT_USER,
     KOKU_DEFAULT_PASSWORD,
     KOKU_CUSTOMER_PATH,
@@ -31,7 +31,7 @@ class KokuObject(object):
         """Provide shared methods for KOKU model objects.
 
         Arguments:
-            client - ``kokuqe.api.Client`` instance used to communicate with the Koku server
+            client - ``hansei.api.Client`` instance used to communicate with the Koku server
             uuid - Koku uuid for the Koku object
         """
         self.uuid = uuid
@@ -42,7 +42,7 @@ class KokuObject(object):
         """Return a dictionary with all fields.
 
         The fields are all data items that may be returned when a `GET` request
-        is sent to the endpoint. It excludes items specific to kokuqe such as
+        is sent to the endpoint. It excludes items specific to hansei such as
         the client and endpoint associated with objects of this type.
         """
         fields = self.payload()
@@ -201,7 +201,7 @@ class KokuObject(object):
     def last_response(self):
         """Return the response of the most recent Koku rest api call
 
-        Returns ``kokuqe.api.Client.last_response``
+        Returns ``hansei.api.Client.last_response``
         """
         return self.client.last_response
 
@@ -212,7 +212,7 @@ class KokuServiceAdmin(KokuObject):
     def __init__(self, client=None, username=None, password=None):
         """
         Arguments:
-            client - existing ``kokuqe.api.Client`` instance used to communicate with the Koku
+            client - existing ``hansei.api.Client`` instance used to communicate with the Koku
                 server. client authenticaton credentials will be used even if username & password
                 are provided
             username - username to use for authentication
@@ -258,7 +258,7 @@ class KokuServiceAdmin(KokuObject):
                     email - Owner email address
                     password - Owner user password
 
-        Returns: ``kokuqe.koku_models.KokuCustomer`` object
+        Returns: ``hansei.koku_models.KokuCustomer`` object
         """
         customer = KokuCustomer(name=name, owner=owner)
         customer._create(self.client)
@@ -270,7 +270,7 @@ class KokuServiceAdmin(KokuObject):
         Args:
             uuid - Koku uuid of the customer to retrieve
 
-        Returns: ``kokuqe.koku_models.KokuCustomer`` object
+        Returns: ``hansei.koku_models.KokuCustomer`` object
         """
         customer = KokuCustomer(uuid=uuid)
         customer.load(customer._read(self.client).json())
@@ -288,7 +288,7 @@ class KokuServiceAdmin(KokuObject):
     def list_customers(self):
         """Retrieve the list of customers on the Koku Server
 
-        Returns: List of ``kokuqe.koku_models.KokuCustomer`` objects
+        Returns: List of ``hansei.koku_models.KokuCustomer`` objects
         """
         customer_list = []
         self.client.get(KOKU_CUSTOMER_PATH)
@@ -310,7 +310,7 @@ class KokuCustomer(KokuObject):
         """Initialize this object with customer information.
 
         Arguments:
-            client - If None, un-authenticated ``kokuqe.api.client`` will be created
+            client - If None, un-authenticated ``hansei.api.client`` will be created
                 else, Existing  object to use for authentication.
                 If provided, client authentication should match any supplied customer with name.
             uuid - UUID of an existing customer
@@ -362,7 +362,7 @@ class KokuCustomer(KokuObject):
             email - User email address
             password - User password
 
-        Returns: ``kokuqe.koku_models.KokuUser`` object
+        Returns: ``hansei.koku_models.KokuUser`` object
         """
         user = KokuUser(username=username, email=email, password=password)
         user._create(self.client)
@@ -374,7 +374,7 @@ class KokuCustomer(KokuObject):
         Args:
             uuid - Koku uuid of the user to retrieve
 
-        Returns: ``kokuqe.koku_models.KokuUser`` object
+        Returns: ``hansei.koku_models.KokuUser`` object
         """
         user = KokuUser(uuid=uuid)
         user.load(user._read(self.client).json())
@@ -394,7 +394,7 @@ class KokuCustomer(KokuObject):
     def list_users(self):
         """Retrieve the list of users on the Koku Server
 
-        Returns: List of ``kokuqe.koku_models.KokuUser`` objects
+        Returns: List of ``hansei.koku_models.KokuUser`` objects
         """
         user_list = []
         response = self.client.get(KOKU_USER_PATH)
@@ -416,7 +416,7 @@ class KokuUser(KokuObject):
     def __init__(self, client=None, uuid=None, username=None, email=None, password=None):
         """
         Arguments:
-            client - Existing `kokuqe.api.client` object to use for authentication.
+            client - Existing `hansei.api.client` object to use for authentication.
                 This client authentication will determine what koku features client has access to
             uuid - UUID of an existing customer
             username - Username for the user
@@ -490,7 +490,7 @@ class KokuUser(KokuObject):
         Args:
             uuid - Koku uuid of the provider to retrieve
 
-        Returns: ``kokuqe.koku_models.KokuProvider`` object
+        Returns: ``hansei.koku_models.KokuProvider`` object
         """
         provider = KokuProvider(uuid=uuid)
         provider.load(provider._read(self.client).json())
@@ -499,7 +499,7 @@ class KokuUser(KokuObject):
     def list_providers(self):
         """Retrieve the list of providers assigned to the current user
 
-        Returns: List of ``kokuqe.koku_models.KokProvider`` objects
+        Returns: List of ``hansei.koku_models.KokProvider`` objects
         """
         providerlist = []
         response = self.client.get(KOKU_PROVIDER_PATH)
@@ -583,7 +583,7 @@ class KokuProvider(KokuObject):
     def __init__(self, client=None, uuid=None, name=None, provider_type="AWS", authentication=None, billing_source=None):
         """
         Arguments:
-            client - Existing `kokuqe.api.client` object to use for authentication.
+            client - Existing `hansei.api.client` object to use for authentication.
                 This client authentication will determine what koku features client has access to
             uuid - UUID of an existing customer
             name - Name for the provider

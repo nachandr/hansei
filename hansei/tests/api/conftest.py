@@ -1,9 +1,9 @@
-"""Pytest customizations and fixtures for the quipucords tests."""
+"""Pytest customizations and fixtures for the koku tests."""
 import fauxfactory
 import pytest
 
-from kokuqe import config
-from kokuqe.koku_models import KokuServiceAdmin, KokuCustomer, KokuUser
+from hansei import config
+from hansei.koku_models import KokuServiceAdmin, KokuCustomer, KokuUser
 
 @pytest.fixture
 def koku_config():

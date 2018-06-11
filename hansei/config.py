@@ -1,7 +1,7 @@
 # coding=utf-8
 """Tools for managing information about test systems.
 
-Camayoc needs to know what servers it can talk to and how to access those
+Hansei needs to know what servers it can talk to and how to access those
 systems. For example, it needs to know the username, hostname and password of a
 system in order to SSH into it.
 """
@@ -12,7 +12,7 @@ from xdg import BaseDirectory
 
 import yaml
 
-from kokuqe import exceptions
+from hansei import exceptions
 
 
 # `get_config` uses this as a cache. It is intentionally a global. This design
@@ -32,7 +32,7 @@ def get_config():
     """
     global _CONFIG  # pylint:disable=global-statement
     if _CONFIG is None:
-        with open(_get_config_file_path('koku-qe', 'config.yaml')) as f:
+        with open(_get_config_file_path('hansei', 'config.yaml')) as f:
             _CONFIG = yaml.load(f)
     return deepcopy(_CONFIG)
 
@@ -51,14 +51,14 @@ def _get_config_file_path(xdg_config_dir, xdg_config_file):
     :param xdg_config_file: A string. The name of the configuration file that
         is being searched for.
     :returns: A string. A path to a configuration file.
-    :raises kokuqe.exceptions.ConfigFileNotFoundError: If the requested
+    :raises hansei.exceptions.ConfigFileNotFoundError: If the requested
         configuration file cannot be found.
     """
     path = BaseDirectory.load_first_config(xdg_config_dir, xdg_config_file)
     if path and os.path.isfile(path):
         return path
     raise exceptions.ConfigFileNotFoundError(
-        'Camayoc is unable to find a configuration file. The following '
+        'Hansei is unable to find a configuration file. The following '
         '(XDG compliant) paths have been searched: ' + ', '.join([
             os.path.join(config_dir, xdg_config_dir, xdg_config_file)
             for config_dir in BaseDirectory.xdg_config_dirs

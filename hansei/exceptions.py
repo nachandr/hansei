@@ -1,17 +1,17 @@
 # coding=utf-8
-"""Custom exceptions defined by Camayoc."""
+"""Custom exceptions defined by Hansei."""
 
 
 class KokuException(Exception):
-    """Base exception thrown during Koku-QE execution
+    """Base exception thrown during Hansei execution
 
     Use this to differentiate between generic exception and exceptions we throw"""
 
 
 class ConfigFileNotFoundError(KokuException):
-    """We cannot find the requested Camayoc configuration file.
+    """We cannot find the requested Hansei configuration file.
 
-    See :mod:`kokuqe.config` for more information on how configuration files
+    See :mod:`hansei.config` for more information on how configuration files
     are handled.
     """
 

@@ -1,8 +1,8 @@
 import fauxfactory
 import pytest
 
-from kokuqe import config
-from kokuqe.koku_models import KokuCustomer, KokuServiceAdmin, KokuUser
+from hansei import config
+from hansei.koku_models import KokuCustomer, KokuServiceAdmin, KokuUser
 
 
 class TestCustomerCrud(object):

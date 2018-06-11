@@ -1,4 +1,4 @@
-from kokuqe import api, config
+from hansei import api, config
 
 def test_api_client():
     koku_cfg = config.get_config().get('koku', {})

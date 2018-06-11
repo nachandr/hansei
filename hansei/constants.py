@@ -1,6 +1,6 @@
 # coding=utf-8
 """Values usable by multiple test modules."""
-from kokuqe import utils
+from hansei import utils
 
 """Koku Default username for the service admin"""
 KOKU_DEFAULT_USER = 'admin'

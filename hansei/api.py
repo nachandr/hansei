@@ -13,9 +13,9 @@ from urllib.parse import urljoin, urlunparse
 import requests
 from requests.exceptions import HTTPError
 
-from kokuqe import config
-from kokuqe import exceptions
-from kokuqe.constants import (
+from hansei import config
+from hansei import exceptions
+from hansei.constants import (
     KOKU_API_VERSION,
     KOKU_TOKEN_PATH,
     KOKU_DEFAULT_USER,
@@ -82,7 +82,7 @@ def code_handler(response):
 def json_handler(response):
     """Like ``code_handler``, but also return a JSON-decoded response body.
 
-    Do what :func:`kokuqe.api.code_handler` does. In addition, decode the
+    Do what :func:`hansei.api.code_handler` does. In addition, decode the
     response body as JSON and return the result.
     """
     raise_error_for_status(response)
@@ -99,14 +99,14 @@ class Client(object):
     `Requests`_ functions lies in its configurable request and response
     handling mechanisms.
 
-    All requests made via this client use the base URL of the qpc server
-    provided in your ``$XDG_CONFIG_HOME/kokuqe/config.yaml``.
+    All requests made via this client use the base URL of the Koku server
+    provided in your ``$XDG_CONFIG_HOME/hansei/config.yaml``.
 
     You can override this base url by assigning a new value to the url
     field.
 
     Example::
-        >>> from kokuqe import api
+        >>> from hansei import api
         >>> client = api.Client()
         >>> # I can now make requests to the KOKU server
         >>> # using relative paths, because the base url is
@@ -132,7 +132,7 @@ class Client(object):
 
         If no URL is specified, then the config file will be parsed and the URL
         will be built by reading the hostname, port and https values. You can
-        configure the default URL by including the following on your Koku-qe
+        configure the default URL by including the following on your hansei
         configuration file::
 
             koku:
@@ -162,7 +162,7 @@ class Client(object):
 
             if not hostname:
                 raise exceptions.KokuBaseUrlNotFound(
-                    "\n'koku' section specified in kokuqe config file, but"
+                    "\n'koku' section specified in hansei config file, but"
                     "no 'hostname' key found."
                 )
 
@@ -175,7 +175,7 @@ class Client(object):
         if not self.url:
             raise exceptions.KOKUBaseUrlNotFound(
                 'No base url was specified to the client either with the '
-                'url="host" option or with the kokuqe config file.')
+                'url="host" option or with the hansei config file.')
 
         if response_handler is None:
             self.response_handler = code_handler
