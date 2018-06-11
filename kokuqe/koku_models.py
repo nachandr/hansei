@@ -11,6 +11,7 @@ from kokuqe.constants import (
     KOKU_DEFAULT_PASSWORD,
     KOKU_CUSTOMER_PATH,
     KOKU_USER_PATH,
+    KOKU_PROVIDER_PATH,
 )
 
 #TODO: Fix client usage b/c it's creating a cyclical problem where a KokuUser requires authentication provided by
@@ -301,15 +302,6 @@ class KokuServiceAdmin(KokuObject):
 
         return customer_list
 
-    def delete_provider(self, uuid):
-        """Delete the provider specified by uuid
-
-        Arguments:
-            uuid - Koku uuid of the provider to delete
-        """
-        #TODO: Verify that only service admin can delete the provider since user can add a provider
-        raise NotImplementedError
-
 
 class KokuCustomer(KokuObject):
     """A class to manage a Koku customer and its users"""
@@ -405,12 +397,12 @@ class KokuCustomer(KokuObject):
         Returns: List of ``kokuqe.koku_models.KokuUser`` objects
         """
         user_list = []
-        self.client.get(KOKU_USER_PATH)
+        response = self.client.get(KOKU_USER_PATH)
 
-        assert self.client.last_response, 'Unable to retrieve user list in {}.list_users()'.format(
+        assert response, 'Unable to retrieve user list in {}.list_users()'.format(
             self.__class__)
 
-        for user_response in self.last_response.json()['results']:
+        for user_response in response.json()['results']:
             tmp_user = KokuUser()
             tmp_user.load(user_response)
             user_list.append(tmp_user)
@@ -473,15 +465,66 @@ class KokuUser(KokuObject):
         self.client.login(self.username, self.password)
         return self.client.token is not None
 
-    def create_provider(self):
-        raise NotImplementedError
+    ##################################################
+    # Provider
+    ##################################################
+    def create_provider(self, name, authentication, provider_type, billing_source):
+        """Create a Koku Provider
+            name - Name for the provider
+            authentication - Authentication for the provider
+            provider_type - Type of provider
+            billing_source - Billing information for the provider
+        """
+        provider = KokuProvider(
+            name=name,
+            authentication=authentication,
+            provider_type=provider_type,
+            billing_source=billing_source)
 
-    def read_provider(self):
-        raise NotImplementedError
+        provider._create(self.client)
+        return provider
+
+    def read_provider(self, uuid):
+        """Get a Koku Provider object with assigned uuid
+
+        Args:
+            uuid - Koku uuid of the provider to retrieve
+
+        Returns: ``kokuqe.koku_models.KokuProvider`` object
+        """
+        provider = KokuProvider(uuid=uuid)
+        provider.load(provider._read(self.client).json())
+        return provider
 
     def list_providers(self):
-        raise NotImplementedError
+        """Retrieve the list of providers assigned to the current user
 
+        Returns: List of ``kokuqe.koku_models.KokProvider`` objects
+        """
+        providerlist = []
+        response = self.client.get(KOKU_PROVIDER_PATH)
+
+        assert response, 'Unable to retrieve provider list in KokuUser.list_providers()'
+
+        for provider_response in response.json()['results']:
+            tmp_provider = KokuProvider()
+            tmp_provider.load(provider_response)
+            providerlist.append(tmp_provider)
+
+        return providerlist
+
+    def delete_provider(self, uuid):
+        """Delete the provider specified by uuid
+
+        Arguments:
+            uuid - Koku uuid of the provider to delete
+        """
+        provider = KokuProvider(uuid=uuid)
+        provider._delete(self.client)
+
+    ##################################################
+    # User Preferences
+    ##################################################
     def path_user_preference(self, pref_uuid=None):
         """Return the endpoint for a user preference
 
@@ -493,7 +536,6 @@ class KokuUser(KokuObject):
             '{}/'.format(pref_uuid) if pref_uuid else '')
         return pref_path
 
-    #TODO: Create a user preference subclass
     def create_preference(self, name, preference, description=None):
         """Send POST request to create a user preference
 
@@ -535,4 +577,47 @@ class KokuUser(KokuObject):
             preference_uuid - uuid of the user preference to remove
         """
         return self.client.delete(self.path_user_preference(pref_uuid))
+
+
+class KokuProvider(KokuObject):
+    def __init__(self, client=None, uuid=None, name=None, provider_type="AWS", authentication=None, billing_source=None):
+        """
+        Arguments:
+            client - Existing `kokuqe.api.client` object to use for authentication.
+                This client authentication will determine what koku features client has access to
+            uuid - UUID of an existing customer
+            name - Name for the provider
+            provider_type - Type of provider. Default is AWS
+            authentication - Authentication for the provider
+            billing_source - Billing source information for the provider
+        """
+        super().__init__(client=client, uuid=uuid)
+        self.endpoint = KOKU_PROVIDER_PATH
+        self.name = name
+        self.provider_type = provider_type
+        self.authentication = authentication
+        self.billing_source = billing_source
+
+    def payload(self):
+        """Return a dictionary for POST or PUT requests."""
+        payload = {
+            'name': self.name,
+            'type': self.provider_type,
+            'authentication': self.authentication,
+            'billing_source': self.billing_source,
+        }
+
+        return payload
+
+    def load(self, payload):
+        """Populate the object data from the response of a GET request
+
+        Arguments:
+            payload - dictionary object from json response
+        """
+        self.name = payload['name']
+        self.provider_type = payload['type']
+        self.authentication = payload['authentication']
+        self.billing_source = payload['billing_source']
+        self.uuid = payload['uuid']
 

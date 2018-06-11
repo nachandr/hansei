@@ -12,3 +12,11 @@ koku:
     # credentials for logging into the server
     username: 'admin'
     password: 'pass'
+providers:
+    # List of the providers to add to the koku server.
+    - name: 'My Company AWS Production'
+      authentication:
+        provider_resource_name: 'arn:aws:iam::PRODUCTION-ACCOUNT-ID:role/CostData'
+      type: 'AWS'
+      billing_source:
+        bucket: 'cost_s3'

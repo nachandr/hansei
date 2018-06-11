@@ -19,3 +19,6 @@ KOKU_CUSTOMER_PATH = 'customers/'
 
 """The path to the endpoint used for working with users."""
 KOKU_USER_PATH = 'users/'
+
+"""The path to the endpoint used for working with providers."""
+KOKU_PROVIDER_PATH = 'providers/'
