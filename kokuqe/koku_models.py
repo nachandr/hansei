@@ -57,7 +57,11 @@ class KokuObject(object):
         return urljoin(self.endpoint, '{}/'.format(self.uuid))
 
     def payload(self):
-        """Return a dictionary for POST or PUT requests."""
+        """Return a dictionary for POST or PUT requests.
+
+        Override this in child objects if you'll have member variable (or variable names) that 
+        are not used in POST or PUT data
+        """
         return {
             k: v for k, v in vars(self).items()
             if k not in ['uuid',
@@ -222,6 +226,21 @@ class KokuServiceAdmin(KokuObject):
 
         self.uuid = None
 
+    def _create(self, client=None):
+        raise NotImplementedError("Cannot create a service admin account")
+
+    def _read(self, client=None):
+        raise NotImplementedError("Cannot read a service admin account")
+
+    def _list(self, client=None):
+        raise NotImplementedError("Cannot read a service admin account")
+
+    def _update(self, client=None):
+        raise NotImplementedError("Cannot update a service admin account")
+
+    def _delete(self, client=None):
+        raise NotImplementedError("Cannot delete a service admin account")
+
     def login(self):
         """Login as the currently assigned service admin user"""
         self.client.login(self.username, self.password)
@@ -334,6 +353,14 @@ class KokuCustomer(KokuObject):
         self.name = payload['name']
         self.owner = payload['owner']
 
+    def payload(self):
+        """Return a dictionary for POST or PUT requests."""
+        payload = {
+            "name": self.name,
+            "owner": self.owner,
+        }
+        return payload
+
     def create_user(self, username, email, password=None):
         """Create a Koku User object
 
@@ -418,6 +445,18 @@ class KokuUser(KokuObject):
         self.client.token = self._orig_token
         self._orig_token = None
 
+    def payload(self):
+        """Return a dictionary for POST or PUT requests."""
+        payload = {
+            "username": self.username,
+            "email": self.email,
+        }
+
+        if self.password:
+            payload['password'] = self.password
+
+        return payload
+
     def load(self, payload):
         """Populate the object data from the response of a GET request
 
@@ -496,3 +535,4 @@ class KokuUser(KokuObject):
             preference_uuid - uuid of the user preference to remove
         """
         return self.client.delete(self.path_user_preference(pref_uuid))
+
