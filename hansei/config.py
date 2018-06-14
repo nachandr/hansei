@@ -32,12 +32,18 @@ def get_config():
     """
     global _CONFIG  # pylint:disable=global-statement
     if _CONFIG is None:
-        with open(_get_config_file_path('hansei', 'config.yaml')) as f:
+        # If config.yaml is present in the directory override the XDG yaml
+        repo_config = os.path.realpath('{}/../config.yaml'.format(os.path.basename(__file__)))
+        if os.path.exists(repo_config):
+            config_yaml  = repo_config
+        else:
+            config_yaml = _get_config_file_path('hansei', 'config.yaml')
+
+        with open(config_yaml) as f:
             _CONFIG = yaml.load(f)
     return deepcopy(_CONFIG)
 
 
-#TODO: Move config default location to repo root
 def _get_config_file_path(xdg_config_dir, xdg_config_file):
     """Search ``XDG_CONFIG_DIRS`` for a config file and return the first found.
 
