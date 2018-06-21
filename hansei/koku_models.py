@@ -205,6 +205,16 @@ class KokuObject(object):
         """
         return self.client.last_response
 
+    @property
+    def logged_in(self):
+        """Returns True if the client is currently logged in"""
+        return self.client.token is not None
+
+    def logout(self):
+        """Logout and make current token invalid"""
+        self.client.logout()
+        return self.client.token is None
+
 
 class KokuServiceAdmin(KokuObject):
     """Class to perform actions as the Koku Service Admin"""

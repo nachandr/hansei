@@ -192,7 +192,7 @@ class Client(object):
 
     def login(self, username, password):
         """Login to the server to receive an authorization token.
-        
+
         Arguments:
             username - Username for initial server authentication
             password - Password for initial server authentication
@@ -214,9 +214,6 @@ class Client(object):
         Send a PUT request /api/v1/users/logout to make
         current token invalid.
         """
-        raise NotImplementedError("USER LOGOUT CURRENTLY NOT IMPLEMENTED")
-        url = urljoin(self.url, 'users/logout/')
-        self.request('PUT', url, **kwargs)
         self.token = None
 
     def get_user(self, **kwargs):
