@@ -86,7 +86,7 @@ class TestUserCrud(object):
 
 
     @pytest.mark.skip(reason="User update not implemented")
-    def test_user_update(self):
+    def test_provider_update(self):
         """Update an existing provider"""
         assert 0
 

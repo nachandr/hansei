@@ -9,17 +9,14 @@ def pytest_report_header(config):
 
     koku_config = hansei_config.get_config().get('koku', {})
 
-    report_header = "Koku Server Info:\n"
+    report_header = ""
 
     try:
         client = hansei_api.Client(username=koku_config.get('username'), password=koku_config.get('password'))
         client.server_status()
         server_status = client.last_response.json()
 
-        if config.getoption("verbose") > 0:
-            report_header = server_status
-        else:
-            report_header += " - API Version: {}\n - Git Commit: {}".format(server_status['api_version'], server_status['commit'])
+        report_header = " - API Version: {}\n - Git Commit: {}".format(server_status['api_version'], server_status['commit'])
 
         if config.pluginmanager.hasplugin("junitxml") and hasattr(config, '_xml'):
             config._xml.add_global_property('Koku Server Id', server_status['server_id'])
@@ -28,6 +25,6 @@ def pytest_report_header(config):
             config._xml.add_global_property('Koku Python Version', server_status['python_version'])
 
     except HTTPError:
-        report_header += " - Unable to retrieve the server status"
+        report_header = " - Unable to retrieve the server status"
 
-    return report_header
+    return "Koku Server Info:\n{}".format(report_header)
