@@ -12,10 +12,9 @@ from hansei.constants import (
     KOKU_CUSTOMER_PATH,
     KOKU_USER_PATH,
     KOKU_PROVIDER_PATH,
+    KOKU_COST_REPORTS_PATH
 )
 
-#TODO: Fix client usage b/c it's creating a cyclical problem where a KokuUser requires authentication provided by
-#      KokuCustomer authorization to perform create/delete actions
 class KokuObject(object):
     """A base class for other KOKU models.
 
@@ -631,3 +630,72 @@ class KokuProvider(KokuObject):
         self.billing_source = payload['billing_source']
         self.uuid = payload['uuid']
 
+
+class KokuBaseReport(object):
+    """Base class for Koku reports"""
+    def __init__(self, client):
+        """
+        Arguments:
+            client - authenticated ``hansei.api.Client`` object used to issue api calls
+        """
+        self.client = client
+        self.endpoint = None
+        self.last_report = None
+
+    def get(self, report_filter=None, order_by=None, group_by=None):
+        """
+        Arguments:
+            report_filter - Dictionary of filter queries key. Key:Value => Filter name:Filter Value
+            order_by - tuple of the order by value.
+                Example: ['cost', 'asc']
+            group_by - List of accounts to group by
+        """
+
+        query_params = {}
+        if order_by:
+            query_params['order_by[{}]'.format(order_by[0])] = order_by[1]
+
+        if group_by:
+            query_params['group_by[account]'] = group_by
+
+        if report_filter:
+            for key,val in report_filter.items():
+                query_params['filter[{}]'.format(key)] = val
+
+        response = self.client.get(self.endpoint, params=query_params)
+        self.last_report = response.json()
+
+        return self.last_report
+
+    @property
+    def filter(self):
+        """The filter params used in the last report query as returned by the Koku json response"""
+        return self.last_report.get('filter') if self.last_report else None
+
+    @property
+    def order_by(self):
+        """The order_by param used in the last report query as returned by the Koku json response"""
+        return self.last_report.get('order_by') if self.last_report else None
+
+    @property
+    def group_by(self):
+        """The group_by param used in the last report query as returned by the Koku json response"""
+        return self.last_report.get('group_by') if self.last_report else None
+
+    @property
+    def data(self):
+        return self.last_report.get('data') if self.last_report else None
+
+
+class KokuCostReport(KokuBaseReport):
+    """
+    Class for interacting with the Koku Cost Reporting object as returned by the
+    Koku json response
+    """
+    def __init__(self, client):
+        super().__init__(client)
+        self.endpoint = KOKU_COST_REPORTS_PATH
+
+    @property
+    def total(self):
+        return self.last_report.get('total') if self.last_report else None
