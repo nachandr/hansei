@@ -10,7 +10,6 @@ from hansei.koku_models import KokuCostReport, KokuCustomer
 # costs.
 DEVIATION = 1
 
-
 def test_validate_totalcost():
     """Test to validate the total cost.The total cost should be equal to the sum
     of all the daily costs"""
@@ -20,6 +19,7 @@ def test_validate_totalcost():
     # Login as test_customer
     customer = KokuCustomer(owner={'username': 'test_customer',
                             'password': 'str0ng!P@ss', 'email': 'foo@bar.com'})
+
     customer.login()
     report = KokuCostReport(customer.client)
     report.get()
