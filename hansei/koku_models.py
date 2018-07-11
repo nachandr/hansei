@@ -1,6 +1,7 @@
 # coding: utf-8
 """Models for use with the Koku API."""
 
+import decimal
 from pprint import pformat
 from urllib.parse import urljoin
 
@@ -648,7 +649,8 @@ class KokuBaseReport(object):
             report_filter - Dictionary of filter queries key. Key:Value => Filter name:Filter Value
             order_by - tuple of the order by value.
                 Example: ['cost', 'asc']
-            group_by - List of accounts to group by
+            group_by - List of tuples for accounts, services,... to group by
+                Example: [['account', '*'], ['service', 'Compute Instance']]
         """
 
         query_params = {}
@@ -656,7 +658,16 @@ class KokuBaseReport(object):
             query_params['order_by[{}]'.format(order_by[0])] = order_by[1]
 
         if group_by:
-            query_params['group_by[account]'] = group_by
+            for group in group_by:
+                key, val = group
+                query_param_key = 'group_by[{}]'.format(key)
+                # The key for group_by params can be duplicated so we need to set the query param
+                # values to lists so that when we pass query_params and the payload to client.get
+                # reponse.get() will know that we need to pass the key multiple times but with
+                # different values
+                if query_param_key not in query_params:
+                    query_params[query_param_key] = []
+                query_params[query_param_key].append(val)
 
         if report_filter:
             for key,val in report_filter.items():
@@ -696,6 +707,78 @@ class KokuCostReport(KokuBaseReport):
         super().__init__(client)
         self.endpoint = KOKU_COST_REPORTS_PATH
 
+    def cost_line_items(self, data=None):
+        """
+        Returns a list of the each cost line item
+
+        Arguments:
+            data (List OR dict)- data object as returned by a Koku cost report request
+        """
+        data = data or self.data
+
+        return self._traverse_cost_line_items(data)
+
+    def _traverse_cost_line_items(self, root_object):
+        """
+        Recursively traverses the report data to generate a list of each cost per time_scope_unit
+        """
+        cost_list = []
+
+        root_object_type = type(root_object)
+        if not root_object or (root_object_type not in [list, dict]):
+            return cost_list
+
+        if root_object_type is list:
+            for item in root_object:
+                if type(item) in [list, dict]:
+                    cost_list.extend(self._traverse_cost_line_items(item))
+        else:
+            if root_object_type is dict:
+                # Once we hit 'values' key it will be a list that contains all of the costs for
+                # 'time_scope_units'
+                if 'values' in root_object:
+                    return cost_list + root_object['values']
+
+                for key,val in root_object.items():
+                    if type(val) in [list, dict]:
+                        cost_list.extend(self._traverse_cost_line_items(val))
+
+        return cost_list
+
+    def calculate_total(self):
+        """
+        Calculates the total cost by adding all of the cost items reported in report data
+        Report data generally takes the format of:
+        data: [
+            {
+                date: YYYY-MM-DD
+                values: [
+                    {
+                       date: DATE
+                       units: CURRENCY
+                       total: COST
+                    }
+                ]
+            }
+        ]
+        """
+        # Check to see if we have a report saved
+        if not self.data:
+            return None
+
+        total_cost = decimal.Decimal(0.0)
+        cost_list = self.cost_line_items(self.data)
+        for cost_item in cost_list:
+            total_cost = total_cost + (
+                decimal.Decimal(cost_item['total']) if cost_item['total'] else 0.0)
+
+        # Koku will return a null total if there are no line item charges in the list
+        if len(cost_list) == 0:
+            total_cost = None
+
+        return total_cost
+
     @property
     def total(self):
+        """Returns the total json object of the report response"""
         return self.last_report.get('total') if self.last_report else None
