@@ -8,7 +8,7 @@ import pytest
 from hansei.koku_models import KokuStorageReport, KokuCustomer
 
 # Allowed deviation between the reported total storage usage and the summed up
-# storage usage from the individual line report_line_items
+# storage usage from the individual line items.
 DEVIATION = 1
 
 pytest_param_all_query_param = [
