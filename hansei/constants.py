@@ -26,3 +26,6 @@ KOKU_PROVIDER_PATH = 'providers/'
 
 #The path to the endpoint used for reporting.
 KOKU_COST_REPORTS_PATH = 'reports/costs/'
+
+# The path to the endpoint used for storage inventory reporting.
+KOKU_STORAGE_REPORTS_PATH = 'reports/inventory/storage/'

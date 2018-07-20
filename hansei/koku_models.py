@@ -13,8 +13,10 @@ from hansei.constants import (
     KOKU_CUSTOMER_PATH,
     KOKU_USER_PATH,
     KOKU_PROVIDER_PATH,
-    KOKU_COST_REPORTS_PATH
+    KOKU_COST_REPORTS_PATH,
+    KOKU_STORAGE_REPORTS_PATH
 )
+
 
 class KokuObject(object):
     """A base class for other KOKU models.
@@ -670,7 +672,7 @@ class KokuBaseReport(object):
                 query_params[query_param_key].append(val)
 
         if report_filter:
-            for key,val in report_filter.items():
+            for key, val in report_filter.items():
                 query_params['filter[{}]'.format(key)] = val
 
         response = self.client.get(self.endpoint, params=query_params)
@@ -697,58 +699,78 @@ class KokuBaseReport(object):
     def data(self):
         return self.last_report.get('data') if self.last_report else None
 
-
-class KokuCostReport(KokuBaseReport):
-    """
-    Class for interacting with the Koku Cost Reporting object as returned by the
-    Koku json response
-    """
-    def __init__(self, client):
-        super().__init__(client)
-        self.endpoint = KOKU_COST_REPORTS_PATH
-
-    def cost_line_items(self, data=None):
+    def report_line_items(self, data=None):
         """
-        Returns a list of the each cost line item
+        Returns a list of the 'total' value of an item fetched from the individual rows in the
+        report.The item could be total cost or total storage usage.
 
         Arguments:
-            data (List OR dict)- data object as returned by a Koku cost report request
+            data (List OR dict)- data object as returned by a Koku report request
         """
         data = data or self.data
 
-        return self._traverse_cost_line_items(data)
+        return self._traverse_report_line_items(data)
 
-    def _traverse_cost_line_items(self, root_object):
+    def _traverse_report_line_items(self, root_object):
         """
-        Recursively traverses the report data to generate a list of each cost per time_scope_unit
+        Recursively traverses the report data to generate a list of the cost
+        or storage used per time_scope_unit
         """
-        cost_list = []
+        line_item_list = []
 
         root_object_type = type(root_object)
         if not root_object or (root_object_type not in [list, dict]):
-            return cost_list
+            return line_item_list
 
         if root_object_type is list:
             for item in root_object:
                 if type(item) in [list, dict]:
-                    cost_list.extend(self._traverse_cost_line_items(item))
+                    line_item_list.extend(self._traverse_report_line_items(item))
         else:
             if root_object_type is dict:
-                # Once we hit 'values' key it will be a list that contains all of the costs for
-                # 'time_scope_units'
+                # Once we hit 'values' key it will be a list that contains all
+                # of the costs or storage usage for 'time_scope_units'
                 if 'values' in root_object:
-                    return cost_list + root_object['values']
+                    return line_item_list + root_object['values']
 
-                for key,val in root_object.items():
+                for key, val in root_object.items():
                     if type(val) in [list, dict]:
-                        cost_list.extend(self._traverse_cost_line_items(val))
+                        line_item_list.extend(self._traverse_report_line_items(val))
 
-        return cost_list
+        return line_item_list
 
     def calculate_total(self):
         """
-        Calculates the total cost by adding all of the cost items reported in report data
-        Report data generally takes the format of:
+        Calculates the total cost/storage usage by adding all of the individual
+        items reported in report data.
+        """
+        # Check to see if we have a report saved
+        if not self.data:
+            return None
+
+        total_item = decimal.Decimal(0.0)
+        item_list = self.report_line_items(self.data)
+        for item in item_list:
+            total_item = total_item + (
+                decimal.Decimal(item['total']) if item['total'] else 0.0)
+
+        # Koku will return a null total if there are no line item charges in the list
+        if len(item_list) == 0:
+            total_item = None
+
+        return total_item
+
+    @property
+    def total(self):
+        """Returns the total json object of the report response"""
+        return self.last_report.get('total') if self.last_report else None
+
+class KokuCostReport(KokuBaseReport):
+    """
+    Class for interacting with the Koku Cost Reporting object as returned by
+    the Koku json response.
+
+    Cost report data generally takes the format of:
         data: [
             {
                 date: YYYY-MM-DD
@@ -761,24 +783,35 @@ class KokuCostReport(KokuBaseReport):
                 ]
             }
         ]
-        """
-        # Check to see if we have a report saved
-        if not self.data:
-            return None
+    """
+    def __init__(self, client):
+        super().__init__(client)
+        self.endpoint = KOKU_COST_REPORTS_PATH
 
-        total_cost = decimal.Decimal(0.0)
-        cost_list = self.cost_line_items(self.data)
-        for cost_item in cost_list:
-            total_cost = total_cost + (
-                decimal.Decimal(cost_item['total']) if cost_item['total'] else 0.0)
+class KokuStorageReport(KokuBaseReport):
+    """
+    Class for interacting with the Koku Storage Reporting object as returned by
+    the Koku json response.
 
-        # Koku will return a null total if there are no line item charges in the list
-        if len(cost_list) == 0:
-            total_cost = None
-
-        return total_cost
-
-    @property
-    def total(self):
-        """Returns the total json object of the report response"""
-        return self.last_report.get('total') if self.last_report else None
+    Storage inventory report data generally takes the format of:
+        data": [
+        {
+            "date": "YYYY-MM-DD",
+            "accounts": [
+                {
+                    "account": "XYZ",
+                    "values": [
+                        {
+                            "date": "YYYY-MM-DD",
+                            "units": STORAGE UNIT,
+                            "account": "XYZ",
+                            "total": STORAGE USAGE
+                        }
+                    ]
+                },
+            ]
+        }]
+    """
+    def __init__(self, client):
+        super().__init__(client)
+        self.endpoint = KOKU_STORAGE_REPORTS_PATH
