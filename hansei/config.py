@@ -41,6 +41,21 @@ def get_config():
 
         with open(config_yaml) as f:
             _CONFIG = yaml.load(f)
+
+    env_hostname = os.environ.get('KOKU_HOSTNAME')
+    env_port = os.environ.get('KOKU_PORT')
+    env_service_admin_user = os.environ.get('KOKU_SERVICE_ADMIN_USER')
+    env_service_admin_password = os.environ.get('KOKU_SERVICE_ADMIN_PASSWORD')
+
+    if env_hostname:
+        _CONFIG['hostname'] = env_hostname
+    if env_port:
+        _CONFIG['port'] = env_port
+    if env_service_admin_user:
+        _CONFIG['username'] = env_service_admin_user
+    if env_service_admin_password:
+        _CONFIG['password'] = env_service_admin_password
+
     return deepcopy(_CONFIG)
 
 
