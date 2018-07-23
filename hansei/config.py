@@ -48,13 +48,21 @@ def get_config():
     env_service_admin_password = os.environ.get('KOKU_SERVICE_ADMIN_PASSWORD')
 
     if env_hostname:
-        _CONFIG['hostname'] = env_hostname
+        if 'koku' not in _CONFIG:
+            _CONFIG['koku'] = {}
+        _CONFIG['koku']['hostname'] = env_hostname
     if env_port:
-        _CONFIG['port'] = env_port
+        if 'koku' not in _CONFIG:
+            _CONFIG['koku'] = {}
+        _CONFIG['koku']['port'] = env_port
     if env_service_admin_user:
-        _CONFIG['username'] = env_service_admin_user
+        if 'koku' not in _CONFIG:
+            _CONFIG['koku'] = {}
+        _CONFIG['koku']['username'] = env_service_admin_user
     if env_service_admin_password:
-        _CONFIG['password'] = env_service_admin_password
+        if 'koku' not in _CONFIG:
+            _CONFIG['koku'] = {}
+        _CONFIG['koku']['password'] = env_service_admin_password
 
     return deepcopy(_CONFIG)
 
