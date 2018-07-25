@@ -56,7 +56,7 @@ def test_validate_instance_count(report_filter, group_by):
     report = KokuInstanceReport(customer.client)
     report.get(report_filter=report_filter, group_by=group_by)
 
-    # Get total number of reported instances by adding individual items
+    # Get total number of reported instances by adding individual items in the report
     instance_count = report.calculate_total_instance_count()
 
     if instance_count is None:
