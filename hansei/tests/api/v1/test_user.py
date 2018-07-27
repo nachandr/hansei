@@ -103,3 +103,39 @@ class TestUserCrud(object):
 
         for server_user in user_list:
             assert server_user.uuid != user.uuid, "User was not deleted from the koku server"
+
+    def test_user_create_no_username(self, customer):
+        """Try to create a new user without username"""
+        # All requests will throw an exception if response is an error code
+
+        uniq_string = fauxfactory.gen_string('alphanumeric', 8)
+        user = customer.create_user(
+            username='',
+            email='user_{0}@{0}.com'.format(uniq_string),
+            password='redhat')
+
+        assert user.uuid, 'No uuid created for user'
+
+    def test_user_create_no_email(self, customer):
+        """Try to create a new user without email"""
+        # All requests will throw an exception if response is an error code
+
+        uniq_string = fauxfactory.gen_string('alphanumeric', 8)
+        user = customer.create_user(
+            username='user_{}'.format(uniq_string),
+            email='',
+            password='redhat')
+
+        assert user.uuid, 'No uuid created for user'
+
+    def test_user_create_email_invalid_format(self, customer):
+        """Try to create a new user without email"""
+        # All requests will throw an exception if response is an error code
+
+        uniq_string = fauxfactory.gen_string('alphanumeric', 8)
+        user = customer.create_user(
+            username='user_{}'.format(uniq_string),
+            email='user_{0}{0}.com'.format(uniq_string),
+            password='redhat')
+
+        assert user.uuid, 'No uuid created for user'
