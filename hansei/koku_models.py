@@ -742,7 +742,7 @@ class KokuBaseReport(object):
     def report_line_items(self, data=None):
         """
         Returns a list of the 'total' value of an item fetched from the individual rows in the
-        report.The item could be total cost or total storage usage.
+        report.The item could be total cost/storage usage/VM uptime.
 
         Arguments:
             data (List OR dict)- data object as returned by a Koku report request
@@ -758,7 +758,7 @@ class KokuBaseReport(object):
 
     def calculate_total(self):
         """
-        Calculates the total cost/storage usage by adding all of the individual
+        Calculates the total cost/storage usage/VM uptime by adding all of the individual
         items reported in report data.
         """
         # Check to see if we have a report saved
@@ -782,6 +782,7 @@ class KokuBaseReport(object):
         """Returns the total json object of the report response"""
         return self.last_report.get('total') if self.last_report else None
 
+
 class KokuCostReport(KokuBaseReport):
     """
     Class for interacting with the Koku Cost Reporting object as returned by
@@ -804,6 +805,7 @@ class KokuCostReport(KokuBaseReport):
     def __init__(self, client):
         super().__init__(client)
         self.endpoint = KOKU_COST_REPORTS_PATH
+
 
 class KokuStorageReport(KokuBaseReport):
     """
@@ -862,25 +864,3 @@ class KokuInstanceReport(KokuBaseReport):
     def __init__(self, client):
         super().__init__(client)
         self.endpoint = KOKU_INSTANCE_REPORTS_PATH
-
-    def calculate_total_instance_count(self):
-        """
-        Calculates the total number of instances in reported by adding all of the individual
-        items reported in report data.
-        """
-        # Check to see if we have a report saved
-        if not self.data:
-            return None
-
-        total_count = 0
-        item_list = self.report_line_items(self.data)
-        for item in item_list:
-            total_count = total_count + (
-                decimal.Decimal(item['count']) if item['count'] else 0)
-
-        # Koku will return a null total if the report data list is empty
-        if len(item_list) == 0:
-            total_count = None
-
-        return total_count
-

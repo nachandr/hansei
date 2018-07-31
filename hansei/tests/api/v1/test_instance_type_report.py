@@ -77,12 +77,12 @@ def test_validate_instance_count(report_filter, group_by):
     report.get(report_filter=report_filter, group_by=group_by)
 
     # Get total number of reported instances by adding individual items in the report
-    instance_count = report.calculate_total_instance_count()
+    vm_uptime = report.calculate_total()
 
-    if instance_count is None:
+    if vm_uptime is None:
         assert len(report.report_line_items()) == 0, (
-            'Total instance count is None but the report shows instances')
+            'VM uptime is None but the report shows instances')
     else:
-        assert report.total['count'] == instance_count, (
-            'Report total is not equal to the sum of instance count from \
+        assert report.total['count'] == vm_uptime, (
+            'Report total is not equal to the sum of VM uptime from \
             individual items')
