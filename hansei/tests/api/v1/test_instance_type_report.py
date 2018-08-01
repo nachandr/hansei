@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for instance type inventory report API
+"""Tests for instance trend inventory report API
 
 The tests assume that the database is pre-populated with data including the
 Koku default 'test_customer' customer by running 'make oc-create-test-db-file'.
@@ -61,10 +61,10 @@ pytest_param_all_query_param = [
 
 
 @pytest.mark.parametrize("report_filter,group_by", pytest_param_all_query_param)
-def test_validate_instance_count(report_filter, group_by):
-    """Test to validate the total instance count across daily and monthly query
-    parameters. The total instance count should be equal to the sum of instance
-    count from the individual line items.
+def test_validate_instance_uptime(report_filter, group_by):
+    """Test to validate the total instance uptime across daily and monthly query
+    parameters. The total instance uptime should be equal to the sum of instance
+    uptime from the individual line items.
     """
 
     # Login as test_customer
@@ -76,7 +76,7 @@ def test_validate_instance_count(report_filter, group_by):
     report = KokuInstanceReport(customer.client)
     report.get(report_filter=report_filter, group_by=group_by)
 
-    # Get total number of reported instances by adding individual items in the report
+    # Get total VM uptime of all instances by adding individual items in the report
     vm_uptime = report.calculate_total()
 
     if vm_uptime is None:
