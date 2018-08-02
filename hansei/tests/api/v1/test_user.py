@@ -1,8 +1,10 @@
 import fauxfactory
 import pytest
+import uuid
 
 from hansei import config
-from hansei.koku_models import KokuCustomer, KokuServiceAdmin, KokuUser
+from hansei.koku_models import KokuServiceAdmin
+from requests.exceptions import HTTPError
 
 
 @pytest.mark.smoke
@@ -109,33 +111,54 @@ class TestUserCrud(object):
         # All requests will throw an exception if response is an error code
 
         uniq_string = fauxfactory.gen_string('alphanumeric', 8)
-        user = customer.create_user(
-            username='',
-            email='user_{0}@{0}.com'.format(uniq_string),
-            password='redhat')
-
-        assert user.uuid, 'No uuid created for user'
+        try:
+            customer.create_user(
+                username='',
+                email='user_{0}@{0}.com'.format(uniq_string),
+                password='redhat')
+        except HTTPError:
+            pass
 
     def test_user_create_no_email(self, customer):
         """Try to create a new user without email"""
         # All requests will throw an exception if response is an error code
 
         uniq_string = fauxfactory.gen_string('alphanumeric', 8)
-        user = customer.create_user(
-            username='user_{}'.format(uniq_string),
-            email='',
-            password='redhat')
-
-        assert user.uuid, 'No uuid created for user'
+        try:
+            customer.create_user(
+                username='user_{}'.format(uniq_string),
+                email='',
+                password='redhat')
+        except HTTPError:
+            pass
 
     def test_user_create_email_invalid_format(self, customer):
-        """Try to create a new user without email"""
+        """Try to create a new user with invalid email format"""
         # All requests will throw an exception if response is an error code
 
         uniq_string = fauxfactory.gen_string('alphanumeric', 8)
-        user = customer.create_user(
-            username='user_{}'.format(uniq_string),
-            email='user_{0}{0}.com'.format(uniq_string),
-            password='redhat')
+        try:
+            customer.create_user(
+                username='user_{}'.format(uniq_string),
+                email='user_{0}{0}.com'.format(uniq_string),
+                password='redhat')
+        except HTTPError:
+            pass
 
-        assert user.uuid, 'No uuid created for user'
+    def test_user_delete_invalid_uuid(self, customer):
+        """Try to delete user with invalid uuid"""
+        # All requests will throw an exception if response is an error code
+
+        try:
+            customer.delete_user(uuid.uuid1())
+        except HTTPError:
+            pass
+
+    def test_user_get_invalid_uuid(self, customer):
+        """Try to get user with invalid uuid"""
+        # All requests will throw an exception if response is an error code
+
+        try:
+            customer.read_user(uuid.uuid1())
+        except HTTPError:
+            pass
